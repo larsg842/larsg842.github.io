@@ -1,0 +1,16 @@
+[
+  {
+    "id": "n1",
+    "title": "Neue Kartendaten verfügbar",
+    "date": "2025-10-15",
+    "image": "assets/news-map.png",
+    "excerpt": "Wir haben aktuelle OpenStreetMap-Daten für Mainz und Frankfurt eingespielt."
+  },
+  {
+    "id": "n2",
+    "title": "Präsentation zum Dualen Studium",
+    "date": "2025-09-30",
+    "image": "assets/news-presentation.png",
+    "excerpt": "Am 30. September stellte ich unser Projekt zur Vermessung vor Studierenden."
+  }
+]

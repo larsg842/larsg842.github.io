@@ -5,195 +5,6 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Persönliche Startseite — Lars G.</title>
 
-    <style>
-        /* Tabs: simple, accessible */
-        .tabs { margin: 0 0 1rem 0; }
-        .tablist { display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; }
-        .tab {
-            background:var(--card);
-            color:var(--text);
-            border:1px solid rgba(10,20,30,0.06);
-            padding:.45rem .75rem;
-            border-radius:10px;
-            cursor:pointer;
-            font-size:.95rem;
-        }
-        .tab[aria-selected="true"] {
-            box-shadow: 0 8px 20px rgba(32,181,129,0.08);
-            outline:3px solid rgba(32,181,129,0.08);
-        }
-        .tabpanel {
-            margin-top:.75rem;
-            padding:0;
-            background:transparent;
-            border-radius:12px;
-            display:none;
-        }
-        .tabpanel[aria-hidden="false"] { display:block; }
-        /* keep layout of .wrap unchanged (remove previous fullpage override) */
-    </style>
-
-    <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var header = document.querySelector('.wrap > header');
-        var main = document.querySelector('.wrap > main');
-        if (!main) return;
-
-        // Build tab control and panels
-        var container = document.createElement('div');
-        container.className = 'tabs';
-        container.innerHTML = ''
-          + '<div role="tablist" class="tablist" aria-label="Hauptbereiche">'
-          +   '<button class="tab" role="tab" id="tab-about-btn" aria-controls="panel-about" aria-selected="true">About</button>'
-          +   '<button class="tab" role="tab" id="tab-news-btn" aria-controls="panel-news" aria-selected="false">News</button>'
-          +   '<button class="tab" role="tab" id="tab-projects-btn" aria-controls="panel-projects" aria-selected="false">Projects</button>'
-          + '</div>'
-          + '<div id="panel-about" class="tabpanel" role="tabpanel" aria-labelledby="tab-about-btn" aria-hidden="false"></div>'
-          + '<div id="panel-news" class="tabpanel" role="tabpanel" aria-labelledby="tab-news-btn" aria-hidden="true"></div>'
-          + '<div id="panel-projects" class="tabpanel" role="tabpanel" aria-labelledby="tab-projects-btn" aria-hidden="true"></div>';
-
-        // Insert tabs below header (or before main as fallback)
-        if (header) header.after(container);
-        else main.parentNode.insertBefore(container, main);
-
-        // Move existing content into About panel so "About" shows timeline + cards
-        var aboutPanel = document.getElementById('panel-about');
-        var timeline = document.querySelector('.timeline');
-        var cards = document.querySelector('.cards');
-        var gallery = document.querySelector('.gallery');
-
-        if (timeline) aboutPanel.appendChild(timeline);
-        if (cards) aboutPanel.appendChild(cards);
-        if (gallery) aboutPanel.appendChild(gallery);
-
-        // Tab behavior (click + basic keyboard navigation)
-        var tabs = container.querySelectorAll('[role="tab"]');
-        var panels = container.querySelectorAll('[role="tabpanel"]');
-
-        function activate(index, setFocus) {
-            tabs.forEach(function (t, i) {
-                var sel = i === index;
-                t.setAttribute('aria-selected', sel ? 'true' : 'false');
-                t.tabIndex = sel ? 0 : -1;
-            });
-            panels.forEach(function (p, i) {
-                var visible = i === index;
-                p.setAttribute('aria-hidden', (!visible).toString());
-            });
-            if (setFocus) tabs[index].focus();
-        }
-
-        tabs.forEach(function (t, i) {
-            t.addEventListener('click', function () { activate(i, true); });
-            t.addEventListener('keydown', function (e) {
-                var idx = Array.prototype.indexOf.call(tabs, t);
-                if (e.key === 'ArrowRight') { e.preventDefault(); activate((idx + 1) % tabs.length, true); }
-                else if (e.key === 'ArrowLeft') { e.preventDefault(); activate((idx - 1 + tabs.length) % tabs.length, true); }
-                else if (e.key === 'Home') { e.preventDefault(); activate(0, true); }
-                else if (e.key === 'End') { e.preventDefault(); activate(tabs.length - 1, true); }
-            });
-        });
-
-        // initial state: About
-        activate(0, false);
-
-        // Dark mode: persistent toggle (uses existing #theme-toggle button)
-        var btn = document.getElementById('theme-toggle');
-        var root = document.documentElement;
-        var themeKey = 'theme-mode';
-
-        function applyTheme(mode) {
-            if (mode === 'dark') {
-                root.classList.add('dark');
-                if (btn) { btn.dataset.mode = 'dark'; btn.innerText = '☀️ Hell'; btn.setAttribute('aria-pressed', 'true'); }
-            } else {
-                root.classList.remove('dark');
-                if (btn) { btn.dataset.mode = 'light'; btn.innerText = '🌙 Dunkel'; btn.setAttribute('aria-pressed', 'false'); }
-            }
-        }
-
-        function getPreferredTheme() {
-            try {
-                var stored = localStorage.getItem(themeKey);
-                if (stored === 'dark' || stored === 'light') return stored;
-            } catch (e) { /* ignore */ }
-            return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        }
-
-        // apply initial theme
-        applyTheme(getPreferredTheme());
-
-        // toggle when button clicked
-        if (btn) {
-            btn.addEventListener('click', function () {
-                var next = btn.dataset.mode === 'dark' ? 'light' : 'dark';
-                applyTheme(next);
-                try { localStorage.setItem(themeKey, next); } catch (e) { /* ignore */ }
-            });
-        }
-
-        // follow OS preference when no explicit choice stored
-        if (window.matchMedia) {
-            var mq = window.matchMedia('(prefers-color-scheme: dark)');
-            var listener = function (e) {
-                try {
-                    if (!localStorage.getItem(themeKey)) applyTheme(e.matches ? 'dark' : 'light');
-                } catch (ex) { /* ignore */ }
-            };
-            if (mq.addEventListener) mq.addEventListener('change', listener);
-            else mq.addListener(listener);
-        }
-    });
-    </script>
-
-    <script>
-        /* Einfaches hash-basiertes Routing:
-           - #about (default) zeigt Timeline + Cards
-           - #timeline zeigt nur die Timeline-Section
-           - #maps zeigt nur die Karten-Card-Liste (.cards)
-           - #map-{name} zeigt die einzelne Karte / Karte-Card (z.B. #map-mainz)
-           Andere Inhalte werden ausgeblendet, es gibt keine "gemeinsame" Seite mehr. */
-        document.addEventListener('DOMContentLoaded', function () {
-            function showRoute() {
-                var hash = location.hash || '#about';
-                var wrap = document.querySelector('.wrap');
-                if (!wrap) return;
-
-                // Sammle Referenzen (falls vorhanden)
-                var timeline = document.querySelector('.timeline');
-                var cards = document.querySelector('.cards');
-
-                // Leere wrap und füge nur das ein, was zur Route gehört
-                wrap.innerHTML = '';
-
-                if (hash === '#timeline') {
-                    if (timeline) wrap.appendChild(timeline);
-                } else if (hash === '#maps') {
-                    if (cards) wrap.appendChild(cards);
-                } else if (hash.startsWith('#map-')) {
-                    // zeigt eine einzelne Karte (Karten-Div befindet sich in .card)
-                    var mapDiv = document.getElementById(hash.slice(1));
-                    if (mapDiv) {
-                        var parentCard = mapDiv.closest('.card') || mapDiv.parentElement;
-                        if (parentCard) wrap.appendChild(parentCard);
-                        else wrap.appendChild(mapDiv);
-                    }
-                } else { // '#about' oder Standard: Timeline + Cards (als eigene "Unterseite")
-                    if (timeline) wrap.appendChild(timeline);
-                    if (cards) wrap.appendChild(cards);
-                }
-
-                // Sicherstellen, dass die gewählte Ansicht den Viewport füllt
-                wrap.style.minHeight = '100vh';
-            }
-
-            window.addEventListener('hashchange', showRoute, false);
-            // initial
-            if (!location.hash) location.replace('#about');
-            showRoute();
-        });
-    </script>
-
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
@@ -282,146 +93,42 @@
             margin-top:.9rem;
         }
 
-        table{
-            width:100%;
-            border-collapse:collapse;
-            min-width:640px;
-        }
+        table{ width:100%; border-collapse:collapse; min-width:640px; }
+        caption{ text-align:left; font-size:.95rem; font-weight:600; margin-bottom:.45rem; color:var(--text); }
+        thead th{ text-align:left; font-size:.9rem; padding:.75rem; background:transparent; color:var(--muted); border-bottom:2px solid rgba(32,181,129,0.08); }
+        tbody td{ padding:.85rem; border-bottom:1px solid rgba(15,20,25,0.04); font-size:.97rem; line-height:1.5; }
 
-        caption{
-            text-align:left;
-            font-size:.95rem;
-            font-weight:600;
-            margin-bottom:.45rem;
-            color:var(--text);
-        }
+        section.gallery{ padding:0; }
 
-        thead th{
-            text-align:left;
-            font-size:.9rem;
-            padding:.75rem;
-            background:transparent;
-            color:var(--muted);
-            border-bottom:2px solid rgba(32,181,129,0.08);
-        }
+        .cards{ display:grid; gap:var(--gap); grid-template-columns:repeat(1,1fr); margin-top:.9rem; }
 
-        tbody td{
-            padding:.85rem;
-            border-bottom:1px solid rgba(15,20,25,0.04);
-            font-size:.97rem;
-            line-height:1.5;
-            transition:background .14s ease;
-        }
+        .card{ display:flex; flex-direction:column; background:var(--card); border-radius:var(--radius); overflow:hidden; text-decoration:none; color:inherit; transition:transform .18s ease, box-shadow .18s ease; min-height:180px; box-shadow:var(--card-shadow); border:1px solid rgba(10,20,30,0.03); }
+        .card:focus, .card:hover{ transform:translateY(-8px); box-shadow:0 28px 56px rgba(32,181,129,0.12); outline:3px solid rgba(32,181,129,0.12); }
+        .card-content{ padding: 1rem; }
+        .card h3{ margin:0 0 .45rem 0; font-size:1rem; }
+        .card p{ margin:0; color:var(--muted); font-size:.95rem; line-height:1.45; }
 
-        tbody tr:nth-child(even){
-            background:rgba(32,181,129,0.02);
-        }
-
-        tbody tr:hover td,
-        tbody tr:focus-within td{
-            background:rgba(32,181,129,0.06);
-        }
-
-        section.gallery{
-            padding:0;
-        }
-
-        .cards{
-            display:grid;
-            gap:var(--gap);
-            grid-template-columns:repeat(1,1fr);
-            margin-top:.9rem;
-        }
-
-        .card{
-            display:flex;
-            flex-direction:column;
-            background:var(--card);
-            border-radius:var(--radius);
-            overflow:hidden;
-            text-decoration:none;
-            color:inherit;
-            transition:transform .18s ease, box-shadow .18s ease;
-            min-height:180px;
-            box-shadow:var(--card-shadow);
-            border:1px solid rgba(10,20,30,0.03);
-        }
-
-        .card:focus,
-        .card:hover{
-            transform:translateY(-8px);
-            box-shadow:0 28px 56px rgba(32,181,129,0.12);
-            outline:3px solid rgba(32,181,129,0.12);
-        }
-
-        .card img{
-            width:100%;
-            height:160px;
-            object-fit:cover;
-            display:block;
-            border-top-left-radius:var(--radius);
-            border-top-right-radius:var(--radius);
-        }
-
-        .card-content{
-            padding: 1rem;
-        }
-
-        .card h3{
-            margin:0 0 .45rem 0;
-            font-size:1rem;
-        }
-
-        .card p{
-            margin:0;
-            color:var(--muted);
-            font-size:.95rem;
-            line-height:1.45;
-        }
-
-        footer{
-            margin-top:1.5rem;
-            font-size:.9rem;
-            color:var(--muted);
-        }
+        footer{ margin-top:1.5rem; font-size:.9rem; color:var(--muted); }
 
         /* Karte-spezifisch */
-        .map-card .map {
-            width:100%;
-            height:200px; /* Höhe der eingebetteten Karte */
-        }
+        .map-card .map { width:100%; height:200px; }
 
-        /* Responsive */
-        @media (min-width:721px){
-            .cards{ grid-template-columns:repeat(2,1fr); }
-        }
-
-        @media (min-width:920px){
-            .cards{ grid-template-columns:repeat(3,1fr); }
-            main{ gap:1.75rem; }
-        }
+        /* Tabs */
+        .tabs { margin: 1rem 0 0 0; }
+        .tablist { display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; }
+        .tab { background:var(--card); color:var(--text); border:1px solid rgba(10,20,30,0.06); padding:.45rem .75rem; border-radius:10px; cursor:pointer; font-size:.95rem; }
+        .tab[aria-selected="true"] { box-shadow: 0 8px 20px rgba(32,181,129,0.08); outline:3px solid rgba(32,181,129,0.08); }
+        .tabpanel { margin-top:.75rem; padding:1rem; background:var(--card); border-radius:12px; box-shadow:var(--card-shadow); }
 
         a:focus{ outline:3px dashed rgba(32,181,129,0.18); outline-offset:3px; }
 
         /* Theme-Toggle Button */
-        .theme-toggle{
-            position:absolute;
-            top:0.15rem;
-            right:0;
-            background:transparent;
-            border:1px solid rgba(10,20,30,0.06);
-            background-color:var(--card);
-            color:var(--text);
-            padding:.35rem .6rem;
-            border-radius:10px;
-            cursor:pointer;
-            font-size:.9rem;
-            display:inline-flex;
-            gap:.5rem;
-            align-items:center;
-        }
+        .theme-toggle{ position:absolute; top:0.15rem; right:0; background:transparent; border:1px solid rgba(10,20,30,0.06); background-color:var(--card); color:var(--text); padding:.35rem .6rem; border-radius:10px; cursor:pointer; font-size:.9rem; display:inline-flex; gap:.5rem; align-items:center; }
         .theme-toggle:focus{ outline:3px solid rgba(32,181,129,0.12); outline-offset:3px; }
         .theme-toggle[data-mode="dark"]{ box-shadow:0 6px 18px rgba(0,0,0,0.35); border-color:rgba(255,255,255,0.06); }
+
+        @media (min-width:721px){ .cards{ grid-template-columns:repeat(2,1fr); } }
+        @media (min-width:920px){ .cards{ grid-template-columns:repeat(3,1fr); } main{ gap:1.75rem; } }
     </style>
 </head>
 <body>
@@ -434,903 +141,258 @@
             <button class="theme-toggle" id="theme-toggle" aria-label="Design umschalten" data-mode="light" title="Design umschalten" aria-pressed="false">🌙 Dunkel</button>
         </header>
 
+        <!-- Statisches, zugängliches Tab-Interface -->
+        <div class="tabs" aria-hidden="false">
+            <div role="tablist" aria-label="Hauptbereiche" class="tablist">
+                <button class="tab" role="tab" id="tab-about-btn" aria-controls="tab-about" aria-selected="true" data-index="0">About</button>
+                <button class="tab" role="tab" id="tab-news-btn" aria-controls="tab-news" aria-selected="false" data-index="1">News</button>
+                <button class="tab" role="tab" id="tab-projects-btn" aria-controls="tab-projects" aria-selected="false" data-index="2">Projects</button>
+            </div>
+        </div>
+
         <main>
-            <section class="timeline" aria-labelledby="timeline-title"></section>
-                <h2 id="timeline-title" style="margin:0;font-size:1rem;">Stationen</h2>
-                <div class="table-wrap" role="region" aria-label="Berufliche Stationen">
-                    <table>
-                      
-                        <thead>
-                            <tr>
-                                <th scope="col">Jahr</th>
-                                <th scope="col">Station</th>
-                                <th scope="col">Ort</th>
-                                <th scope="col">Stichwort</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>2023-heute</td>
-                                <td>Studium</td>
-                                <td>Mainz</td>
-                                <td>Geoinformatik und Vermessung</td>
-                            </tr>
-                            <tr>
-                                <td>2023-heute</td>
-                                <td>Duales Studium</td>
-                                <td>Frankfurt</td>
-                                <td>Datenmanagement</td>
-                            </tr>
-                            <tr>
-                                <td>2014-2023</td>
-                                <td>Schule</td>
-                                <td>Hanau</td>
-                                <td></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            <section id="tab-about" class="tabpanel" role="tabpanel" aria-labelledby="tab-about-btn">
+                <section class="timeline" aria-labelledby="timeline-title">
+                    <h2 id="timeline-title" style="margin:0;font-size:1rem;">Stationen</h2>
+                    <div class="table-wrap" role="region" aria-label="Berufliche Stationen" style="margin-top:.6rem;">
+                        <table>
+                            <caption>Meine Stationen</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Jahr</th>
+                                    <th scope="col">Station</th>
+                                    <th scope="col">Ort</th>
+                                    <th scope="col">Stichwort</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2023–heute</td>
+                                    <td>Studium</td>
+                                    <td>Mainz</td>
+                                    <td>Geoinformatik und Vermessung</td>
+                                </tr>
+                                <tr>
+                                    <td>2023–heute</td>
+                                    <td>Duales Studium</td>
+                                    <td>Frankfurt</td>
+                                    <td>Datenmanagement</td>
+                                </tr>
+                                <tr>
+                                    <td>2014–2023</td>
+                                    <td>Schule</td>
+                                    <td>Hanau</td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
 
-                <!-- NEU: Karten für die in der Tabelle genannten Städte -->
-                <script>
-                // Initialisierung so, dass jede Karte ihren eigenen Tile-Layer bekommt
-                document.addEventListener('DOMContentLoaded', function () {
-                    var tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-                    var attribution = '&copy; OpenStreetMap contributors';
+                    <!-- Karten als Karten-Artikel -->
+                    <div class="cards" style="margin-top:1rem;">
+                        <article class="card map-card" role="group" aria-labelledby="map-mainz-title">
+                            <div id="map-mainz" class="map" aria-label="Karte Mainz"></div>
+                            <div class="card-content">
+                                <h3 id="map-mainz-title">Mainz</h3>
+                                <p>Standort: Mainz — Studium (Geoinformatik &amp; Vermessung)</p>
+                            </div>
+                        </article>
 
-                    var places = {
-                        'map-mainz':      { lat: 49.992861, lng: 8.247253, title: 'Mainz' },
-                        'map-frankfurt':  { lat: 50.110924, lng: 8.682127, title: 'Frankfurt am Main' },
-                        'map-hanau':      { lat: 50.131900, lng: 8.916100, title: 'Hanau' }
-                    };
+                        <article class="card map-card" role="group" aria-labelledby="map-frankfurt-title">
+                            <div id="map-frankfurt" class="map" aria-label="Karte Frankfurt"></div>
+                            <div class="card-content">
+                                <h3 id="map-frankfurt-title">Frankfurt</h3>
+                                <p>Standort: Frankfurt — Duales Studium / Datenmanagement</p>
+                            </div>
+                        </article>
 
-                    Object.keys(places).forEach(function (id) {
-                        var el = document.getElementById(id);
-                        if (!el) return;
+                        <article class="card map-card" role="group" aria-labelledby="map-hanau-title">
+                            <div id="map-hanau" class="map" aria-label="Karte Hanau"></div>
+                            <div class="card-content">
+                                <h3 id="map-hanau-title">Hanau</h3>
+                                <p>Standort: Hanau — Schule</p>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+            </section>
 
-                        // Falls bereits ein Leaflet-Map-Objekt im Container existiert, entfernen (sicherstellen)
-                        try {
-                            if (el._leaflet_id) {
-                                // Leaflet stellt keine offizielle API zum Entfernen per Container bereit,
-                                // aber remove() auf einer existierenden Map funktioniert, falls referenziert.
-                                // Wir versuchen hier, vorhandene Inhalte zu leeren, bevor neu erstellt wird.
-                                el.innerHTML = '';
-                            }
-                        } catch (e) {
-                            // ignore
-                        }
-
-                        var cfg = places[id];
-                        var map = L.map(el, { scrollWheelZoom: false }).setView([cfg.lat, cfg.lng], 12);
-
-                        // Neuen Tile-Layer für jede Karte erzeugen (nicht denselben Layer wiederverwenden)
-                        L.tileLayer(tileUrl, { attribution: attribution }).addTo(map);
-
-                        L.marker([cfg.lat, cfg.lng]).addTo(map).bindPopup(cfg.title);
-                    });
-                });
-                </script>
-                <div class="cards" aria-hidden="false" style="margin-top:1rem;">
-                    <article class="card map-card" role="group" aria-labelledby="map-mainz-title">
-                        <div id="map-mainz" class="map" aria-label="Karte Mainz"></div>
-                        <div class="card-content">
-                            <h3 id="map-mainz-title">Mainz</h3>
-                            <p>Standort: Mainz — Studium (Geoinformatik &amp; Vermessung)</p>
-                        </div>
-                    </article>
-
-                    <article class="card map-card" role="group" aria-labelledby="map-frankfurt-title">
-                        <div id="map-frankfurt" class="map" aria-label="Karte Frankfurt"></div>
-                        <div class="card-content">
-                            <h3 id="map-frankfurt-title">Frankfurt</h3>
-                            <p>Standort: Frankfurt — Duales Studium / Datenmanagement</p>
-                        </div>
-                    </article>
-
-                    <article class="card map-card" role="group" aria-labelledby="map-hanau-title">
-                        <div id="map-hanau" class="map" aria-label="Karte Hanau"></div>
-                        <div class="card-content">
-                            <h3 id="map-hanau-title">Hanau</h3>
-                            <p>Standort: Hanau — Schule</p>
-                        </div>
-                    </article>
+            <section id="tab-news" class="tabpanel" role="tabpanel" aria-labelledby="tab-news-btn" hidden>
+                <div class="tabpanel">
+                    <h2 style="margin-top:0;margin-bottom:.5rem;font-size:1.05rem;">News</h2>
+                    <div id="news-list" class="cards" aria-live="polite" style="margin-top:.6rem;">
+                        <!-- News werden hier dynamisch aus assets/news.json geladen -->
+                    </div>
+                    <noscript style="color:var(--muted);">Bitte aktiviere JavaScript, um die aktuellen Meldungen zu sehen.</noscript>
                 </div>
             </section>
 
-            <section class="gallery" aria-labelledby="gallery-title">
-                
-                <!-- Leaflet JS + Initialisierung der drei Karten (Mainz, Frankfurt, Hanau) -->
-                <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-                <script>
-                document.addEventListener('DOMContentLoaded', function () {
-                    // Gemeinsamer Tile-Layer
-                    var tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        attribution: '&copy; OpenStreetMap contributors'
-                    });
-
-                    // Koordinaten der Städte
-                    var places = {
-                        'map-mainz':      { lat: 49.992861, lng: 8.247253, title: 'Mainz' },
-                        'map-frankfurt':  { lat: 50.110924, lng: 8.682127, title: 'Frankfurt am Main' },
-                        '__init_tabs__': (function () {
-                            // Fügt ein einfaches, zugängliches Tab-Interface oberhalb von <main> ein.
-                            // Liegt als IIFE im places-Objekt, wird beim Parsen ausgeführt und später vom Map-Loop ignoriert.
-                            try {
-                                var css = `
-                                .tabs { margin: 1rem 0 0 0; }
-                                .tablist { display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; }
-                                .tab {
-                                    background:var(--card);
-                                    color:var(--text);
-                                    border:1px solid rgba(10,20,30,0.06);
-                                    padding:.45rem .75rem;
-                                    border-radius:10px;
-                                    cursor:pointer;
-                                    font-size:.95rem;
-                                    <html lang="de">
-                                    <head>
-                                        <meta charset="utf-8" />
-                                        <meta name="viewport" content="width=device-width,initial-scale=1" />
-                                        <title>Persönliche Startseite — Lars G.</title>
-
-                                        <!-- Leaflet CSS -->
-                                        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-
-                                        <style>
-                                            :root{
-                                                --bg:#ffffff;
-                                                --text:#0b1220;
-                                                --muted:#46515b;
-                                                --accent:#20b581ff;
-                                                --card:#f7f9fb;
-                                                --radius:12px;
-                                                --card-shadow: 0 14px 32px rgba(32,181,129,0.08);
-                                                --max-width:1000px;
-                                                --gap:1.5rem;
-                                                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, system-ui, sans-serif;
-                                                color-scheme: light;
-                                            }
-
-                                            /* Nachtmodus-Variablen */
-                                            .dark{
-                                                --bg:#0b1220;
-                                                --text:#e6eef6;
-                                                --muted:#98a9b8;
-                                                --accent:#2ad48bff;
-                                                --card:#0f1620;
-                                                --card-shadow: 0 14px 36px rgba(0,0,0,0.6);
-                                                color-scheme: dark;
-                                            }
-
-                                            /* sanfte Übergänge bei Farbwechsel */
-                                            html, body, .card, table, .card-content, header, footer {
-                                                transition: background-color .24s ease, color .24s ease, box-shadow .24s ease;
-                                            }
-
-                                            html,body{
-                                                height:100%;
-                                                margin:0;
-                                                background:var(--bg);
-                                                color:var(--text);
-                                                -webkit-font-smoothing:antialiased;
-                                                -moz-osx-font-smoothing:grayscale;
-                                                line-height:1.6;
-                                            }
-
-                                            .wrap{
-                                                max-width:var(--max-width);
-                                                margin:3rem auto;
-                                                padding:1rem;
-                                                box-sizing:border-box;
-                                            }
-
-                                            header{
-                                                display:block;
-                                                margin-bottom:2.25rem;
-                                                text-align:left;
-                                                position:relative; /* erlaubt Positionierung des Toggle-Buttons */
-                                            }
-
-                                            h1{
-                                                margin:0 0 .6rem 0;
-                                                font-size:clamp(1.4rem, 2.6vw, 2rem);
-                                                line-height:1.05;
-                                            }
-
-                                            .lead{
-                                                margin:0 0 .75rem 0;
-                                                color:var(--muted);
-                                                font-size:1rem;
-                                            }
-
-                                            main{
-                                                display:grid;
-                                                gap:var(--gap);
-                                            }
-
-                                            section.timeline{
-                                                background:linear-gradient(180deg, rgba(32,181,129,0.03), transparent);
-                                                padding:1rem;
-                                                border-radius:var(--radius);
-                                            }
-
-                                            .table-wrap{
-                                                overflow:auto;
-                                                border-radius:8px;
-                                                box-shadow:0 1px 0 rgba(0,0,0,0.04) inset;
-                                                margin-top:.9rem;
-                                            }
-
-                                            table{
-                                                width:100%;
-                                                border-collapse:collapse;
-                                                min-width:640px;
-                                            }
-
-                                            caption{
-                                                text-align:left;
-                                                font-size:.95rem;
-                                                font-weight:600;
-                                                margin-bottom:.45rem;
-                                                color:var(--text);
-                                            }
-
-                                            thead th{
-                                                text-align:left;
-                                                font-size:.9rem;
-                                                padding:.75rem;
-                                                background:transparent;
-                                                color:var(--muted);
-                                                border-bottom:2px solid rgba(32,181,129,0.08);
-                                            }
-
-                                            tbody td{
-                                                padding:.85rem;
-                                                border-bottom:1px solid rgba(15,20,25,0.04);
-                                                font-size:.97rem;
-                                                line-height:1.5;
-                                                transition:background .14s ease;
-                                            }
-
-                                            tbody tr:nth-child(even){
-                                                background:rgba(32,181,129,0.02);
-                                            }
-
-                                            tbody tr:hover td,
-                                            tbody tr:focus-within td{
-                                                background:rgba(32,181,129,0.06);
-                                            }
-
-                                            section.gallery{
-                                                padding:0;
-                                            }
-
-                                            .cards{
-                                                display:grid;
-                                                gap:var(--gap);
-                                                grid-template-columns:repeat(1,1fr);
-                                                margin-top:.9rem;
-                                            }
-
-                                            .card{
-                                                display:flex;
-                                                flex-direction:column;
-                                                background:var(--card);
-                                                border-radius:var(--radius);
-                                                overflow:hidden;
-                                                text-decoration:none;
-                                                color:inherit;
-                                                transition:transform .18s ease, box-shadow .18s ease;
-                                                min-height:180px;
-                                                box-shadow:var(--card-shadow);
-                                                border:1px solid rgba(10,20,30,0.03);
-                                            }
-
-                                            .card:focus,
-                                            .card:hover{
-                                                transform:translateY(-8px);
-                                                box-shadow:0 28px 56px rgba(32,181,129,0.12);
-                                                outline:3px solid rgba(32,181,129,0.12);
-                                            }
-
-                                            .card img{
-                                                width:100%;
-                                                height:160px;
-                                                object-fit:cover;
-                                                display:block;
-                                                border-top-left-radius:var(--radius);
-                                                border-top-right-radius:var(--radius);
-                                            }
-
-                                            .card-content{
-                                                padding: 1rem;
-                                            }
-
-                                            .card h3{
-                                                margin:0 0 .45rem 0;
-                                                font-size:1rem;
-                                            }
-
-                                            .card p{
-                                                margin:0;
-                                                color:var(--muted);
-                                                font-size:.95rem;
-                                                line-height:1.45;
-                                            }
-
-                                            footer{
-                                                margin-top:1.5rem;
-                                                font-size:.9rem;
-                                                color:var(--muted);
-                                            }
-
-                                            /* Karte-spezifisch */
-                                            .map-card .map {
-                                                width:100%;
-                                                height:200px; /* Höhe der eingebetteten Karte */
-                                            }
-
-                                            /* Responsive */
-                                            @media (min-width:721px){
-                                                .cards{ grid-template-columns:repeat(2,1fr); }
-                                            }
-
-                                            @media (min-width:920px){
-                                                .cards{ grid-template-columns:repeat(3,1fr); }
-                                                main{ gap:1.75rem; }
-                                            }
-
-                                            a:focus{ outline:3px dashed rgba(32,181,129,0.18); outline-offset:3px; }
-
-                                            /* Theme-Toggle Button */
-                                            .theme-toggle{
-                                                position:absolute;
-                                                top:0.15rem;
-                                                right:0;
-                                                background:transparent;
-                                                border:1px solid rgba(10,20,30,0.06);
-                                                background-color:var(--card);
-                                                color:var(--text);
-                                                padding:.35rem .6rem;
-                                                border-radius:10px;
-                                                cursor:pointer;
-                                                font-size:.9rem;
-                                                display:inline-flex;
-                                                gap:.5rem;
-                                                align-items:center;
-                                            }
-                                            .theme-toggle:focus{ outline:3px solid rgba(32,181,129,0.12); outline-offset:3px; }
-                                            .theme-toggle[data-mode="dark"]{ box-shadow:0 6px 18px rgba(0,0,0,0.35); border-color:rgba(255,255,255,0.06); }
-                                        </style>
-                                    </head>
-                                    <body>
-                                        <div class="wrap">
-                                            <header>
-                                                <h1>Lars Grasmück — Geoinformatik &amp; Vermessung</h1>
-                                                <p class="lead">Kurzprofil: Ich absolviere ein Duales Studium der Geoinformatik und Vermessung in Frankfurt und Mainz. Nebenher reise ich gerne und interessiere mich u.a. für Fußball und Tischtennis</p>
-
-                                                <!-- Theme Toggle Button -->
-                                                <button class="theme-toggle" id="theme-toggle" aria-label="Design umschalten" data-mode="light" title="Design umschalten" aria-pressed="false">🌙 Dunkel</button>
-                                            </header>
-
-                                            <main>
-                                                <section class="timeline" aria-labelledby="timeline-title"></section>
-                                                    <h2 id="timeline-title" style="margin:0;font-size:1rem;">Stationen</h2>
-                                                    <div class="table-wrap" role="region" aria-label="Berufliche Stationen">
-                                                        <table>
-                                                          
-                                                            <thead>
-                                                                <tr>
-                                                                    <th scope="col">Jahr</th>
-                                                                    <th scope="col">Station</th>
-                                                                    <th scope="col">Ort</th>
-                                                                    <th scope="col">Stichwort</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                <tr>
-                                                                    <td>2023-heute</td>
-                                                                    <td>Studium</td>
-                                                                    <td>Mainz</td>
-                                                                    <td>Geoinformatik und Vermessung</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>2023-heute</td>
-                                                                    <td>Duales Studium</td>
-                                                                    <td>Frankfurt</td>
-                                                                    <td>Datenmanagement</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>2014-2023</td>
-                                                                    <td>Schule</td>
-                                                                    <td>Hanau</td>
-                                                                    <td></td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-
-                                                    <!-- NEU: Karten für die in der Tabelle genannten Städte -->
-                                                    <script>
-                                                    // Initialisierung so, dass jede Karte ihren eigenen Tile-Layer bekommt
-                                                    document.addEventListener('DOMContentLoaded', function () {
-                                                        var tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-                                                        var attribution = '&copy; OpenStreetMap contributors';
-
-                                                        var places = {
-                                                            'map-mainz':      { lat: 49.992861, lng: 8.247253, title: 'Mainz' },
-                                                            'map-frankfurt':  { lat: 50.110924, lng: 8.682127, title: 'Frankfurt am Main' },
-                                                            'map-hanau':      { lat: 50.131900, lng: 8.916100, title: 'Hanau' }
-                                                        };
-
-                                                        Object.keys(places).forEach(function (id) {
-                                                            var el = document.getElementById(id);
-                                                            if (!el) return;
-
-                                                            // Falls bereits ein Leaflet-Map-Objekt im Container existiert, entfernen (sicherstellen)
-                                                            try {
-                                                                if (el._leaflet_id) {
-                                                                    // Leaflet stellt keine offizielle API zum Entfernen per Container bereit,
-                                                                    // aber remove() auf einer existierenden Map funktioniert, falls referenziert.
-                                                                    // Wir versuchen hier, vorhandene Inhalte zu leeren, bevor neu erstellt wird.
-                                                                    el.innerHTML = '';
-                                                                }
-                                                            } catch (e) {
-                                                                // ignore
-                                                            }
-
-                                                            var cfg = places[id];
-                                                            var map = L.map(el, { scrollWheelZoom: false }).setView([cfg.lat, cfg.lng], 12);
-
-                                                            // Neuen Tile-Layer für jede Karte erzeugen (nicht denselben Layer wiederverwenden)
-                                                            L.tileLayer(tileUrl, { attribution: attribution }).addTo(map);
-
-                                                            L.marker([cfg.lat, cfg.lng]).addTo(map).bindPopup(cfg.title);
-                                                        });
-                                                    });
-                                                    </script>
-                                                    <div class="cards" aria-hidden="false" style="margin-top:1rem;">
-                                                        <article class="card map-card" role="group" aria-labelledby="map-mainz-title">
-                                                            <div id="map-mainz" class="map" aria-label="Karte Mainz"></div>
-                                                            <div class="card-content">
-                                                                <h3 id="map-mainz-title">Mainz</h3>
-                                                                <p>Standort: Mainz — Studium (Geoinformatik &amp; Vermessung)</p>
-                                                            </div>
-                                                        </article>
-
-                                                        <article class="card map-card" role="group" aria-labelledby="map-frankfurt-title">
-                                                            <div id="map-frankfurt" class="map" aria-label="Karte Frankfurt"></div>
-                                                            <div class="card-content">
-                                                                <h3 id="map-frankfurt-title">Frankfurt</h3>
-                                                                <p>Standort: Frankfurt — Duales Studium / Datenmanagement</p>
-                                                            </div>
-                                                        </article>
-
-                                                        <article class="card map-card" role="group" aria-labelledby="map-hanau-title">
-                                                            <div id="map-hanau" class="map" aria-label="Karte Hanau"></div>
-                                                            <div class="card-content">
-                                                                <h3 id="map-hanau-title">Hanau</h3>
-                                                                <p>Standort: Hanau — Schule</p>
-                                                            </div>
-                                                        </article>
-                                                    </div>
-                                                </section>
-
-                                                <section class="gallery" aria-labelledby="gallery-title">
-                                                    
-                                                    <!-- Leaflet JS + Initialisierung der drei Karten (Mainz, Frankfurt, Hanau) -->
-                                                    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-                                                    <script>
-                                                    document.addEventListener('DOMContentLoaded', function () {
-                                                        // Gemeinsamer Tile-Layer
-                                                        var tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                                                            attribution: '&copy; OpenStreetMap contributors'
-                                                        });
-
-                                                        // Koordinaten der Städte
-                                                        var places = {
-                                                            'map-mainz':      { lat: 49.992861, lng: 8.247253, title: 'Mainz' },
-                                                            'map-frankfurt':  { lat: 50.110924, lng: 8.682127, title: 'Frankfurt am Main' },
-                                                            '__init_tabs__': (function () {
-                                                                // Fügt ein einfaches, zugängliches Tab-Interface oberhalb von <main> ein.
-                                                                // Liegt als IIFE im places-Objekt, wird beim Parsen ausgeführt und später vom Map-Loop ignoriert.
-                                                                try {
-                                                                    var css = `
-                                                                    .tabs { margin: 1rem 0 0 0; }
-                                                                    .tablist { display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; }
-                                                                    .tab {
-                                                                        background:var(--card);
-                                                                        color:var(--text);
-                                                                        border:1px solid rgba(10,20,30,0.06);
-                                                                        padding:.45rem .75rem;
-                                                                        border-radius:10px;
-                                                                        cursor:pointer;
-                                                                        font-size:.95rem;
-                                                                    }
-                                                                    .tab[aria-selected="true"] {
-                                                                        box-shadow: 0 8px 20px rgba(32,181,129,0.08);
-                                                                        outline:3px solid rgba(32,181,129,0.08);
-                                                                    }
-                                                                    .tabpanel {
-                                                                        margin-top:.75rem;
-                                                                        padding:1rem;
-                                                                        background:var(--card);
-                                                                        border-radius:12px;
-                                                                        box-shadow:var(--card-shadow);
-                                                                    }
-                                                                    `;
-
-                                                                    var style = document.createElement('style');
-                                                                    style.type = 'text/css';
-                                                                    style.textContent = css;
-                                                                    document.head.appendChild(style);
-
-                                                                    var header = document.querySelector('.wrap > header');
-                                                                    var main = document.querySelector('.wrap > main');
-
-                                                                    var container = document.createElement('div');
-                                                                    container.className = 'tabs';
-                                                                    container.innerHTML = `
-                                                                        <div role="tablist" aria-label="Hauptbereiche" class="tablist">
-                                                                            <button class="tab" role="tab" id="tab-about-btn" aria-controls="tab-about" aria-selected="false" data-index="0">About</button>
-                                                                            <button class="tab" role="tab" id="tab-news-btn" aria-controls="tab-news" aria-selected="false" data-index="1">News</button>
-                                                                            <button class="tab" role="tab" id="tab-projects-btn" aria-controls="tab-projects" aria-selected="false" data-index="2">Projects</button>
-                                                                        </div>
-                                                                        <div id="tab-about" class="tabpanel" role="tabpanel" aria-labelledby="tab-about-btn" aria-hidden="true">
-                                                                            <h2 style="margin-top:0;margin-bottom:.5rem;font-size:1.05rem;">About</h2>
-                                                                            <p style="margin:0;color:var(--muted);">
-                                                                                Ich absolviere ein Duales Studium der Geoinformatik und Vermessung in Frankfurt und Mainz.
-                                                                                Nebenher reise ich gerne und interessiere mich u.a. für Fußball und Tischtennis.
-                                                                            </p>
-                                                                        </div>
-                                                                        <div id="tab-news" class="tabpanel" role="tabpanel" aria-labelledby="tab-news-btn" aria-hidden="true" hidden>
-                                                                            <h2 style="margin-top:0;margin-bottom:.5rem;font-size:1.05rem;">News</h2>
-                                                                            <p style="margin:0;color:var(--muted);">Aktuelle Infos: Keine neuen Meldungen.</p>
-                                                                        </div>
-                                                                        <div id="tab-projects" class="tabpanel" role="tabpanel" aria-labelledby="tab-projects-btn" aria-hidden="true" hidden>
-                                                                            <h2 style="margin-top:0;margin-bottom:.5rem;font-size:1.05rem;">Projects</h2>
-                                                                            <p style="margin:0;color:var(--muted);">Aktuelle Projekte: —</p>
-                                                                        </div>
-                                                                    `;
-
-                                                                    // Einfügen oberhalb des main-Elements
-                                                                    if (main && header) {
-                                                                        header.after(container);
-                                                                    } else if (main) {
-                                                                        main.parentNode.insertBefore(container, main);
-                                                                    } else {
-                                                                        // Fallback: ans Ende von .wrap
-                                                                        var wrap = document.querySelector('.wrap');
-                                                                        if (wrap) wrap.appendChild(container);
-                                                                    }
-
-                                                                    // Move existing page sections into the About panel so "About" becomes full page view
-                                                                    (function moveContentIntoAbout() {
-                                                                        try {
-                                                                            var aboutPanel = container.querySelector('#tab-about');
-                                                                            if (!aboutPanel) return;
-
-                                                                            // Elements to move: the timeline section (table) and the cards/gallery
-                                                                            var timeline = document.querySelector('.timeline');
-                                                                            var tableWrap = document.querySelector('.table-wrap');
-                                                                            var cards = document.querySelector('.cards');
-                                                                            var gallery = document.querySelector('.gallery');
-
-                                                                            // Prefer moving the higher-level timeline (which may contain table header etc.)
-                                                                            if (timeline) aboutPanel.appendChild(timeline);
-                                                                            else {
-                                                                                if (tableWrap) aboutPanel.appendChild(tableWrap);
-                                                                            }
-
-                                                                            if (cards) aboutPanel.appendChild(cards);
-
-                                                                            // If there is a gallery section, move it into About as well
-                                                                            if (gallery) aboutPanel.appendChild(gallery);
-                                                                        } catch (e) {
-                                                                            console.error('Content move failed', e);
-                                                                        }
-                                                                    })();
-
-                                                                    var tabs = container.querySelectorAll('[role="tab"]');
-                                                                    var panels = container.querySelectorAll('[role="tabpanel"]');
-                                                                    var storageKey = 'active-tab-index';
-
-                                                                    function activate(index, setFocus) {
-                                                                        tabs.forEach(function (t, i) {
-                                                                            var selected = i === index;
-                                                                            t.setAttribute('aria-selected', selected ? 'true' : 'false');
-                                                                            if (selected && setFocus) t.focus();
-                                                                        });
-                                                                        panels.forEach(function (p, i) {
-                                                                            var visible = i === index;
-                                                                            p.hidden = !visible;
-                                                                            p.setAttribute('aria-hidden', (!visible).toString());
-                                                                        });
-                                                                        try { localStorage.setItem(storageKey, String(index)); } catch (e) {}
-                                                                    }
-
-                                                                    // Keyboard navigation (ArrowLeft, ArrowRight, Home, End)
-                                                                    container.addEventListener('keydown', function (e) {
-                                                                        var activeIndex = Array.prototype.findIndex.call(tabs, function (t) { return t.getAttribute('aria-selected') === 'true'; });
-                                                                        if (activeIndex < 0) activeIndex = 0;
-                                                                        if (e.key === 'ArrowRight') { e.preventDefault(); activate((activeIndex + 1) % tabs.length, true); }
-                                                                        else if (e.key === 'ArrowLeft') { e.preventDefault(); activate((activeIndex - 1 + tabs.length) % tabs.length, true); }
-                                                                        else if (e.key === 'Home') { e.preventDefault(); activate(0, true); }
-                                                                        else if (e.key === 'End') { e.preventDefault(); activate(tabs.length - 1, true); }
-                                                                    });
-
-                                                                    tabs.forEach(function (t, i) {
-                                                                        t.addEventListener('click', function () { activate(i, false); });
-                                                                    });
-
-                                                                    // Initial state from storage or default to first tab
-                                                                    var start = 0;
-                                                                    try { var stored = parseInt(localStorage.getItem(storageKey), 10); if (!isNaN(stored) && stored >= 0 && stored < tabs.length) start = stored; } catch (e) {}
-                                                                    activate(start, false);
-                                                                } catch (e) {
-                                                                    // Falls etwas schiefgeht, nicht fatal
-                                                                    console.error('Tabs init failed', e);
-                                                                }
-                                                                return null;
-                                                            })(),
-                                                            'map-hanau':      { lat: 50.131900, lng: 8.916100, title: 'Hanau' }
-                                                        };
-
-                                                        Object.keys(places).forEach(function (id) {
-                                                            var el = document.getElementById(id);
-                                                            if (!el) return; // Element nicht vorhanden -> überspringen
-
-                                                            var cfg = places[id];
-                                                            var map = L.map(el, { scrollWheelZoom: false }).setView([cfg.lat, cfg.lng], 12);
-                                                            tileLayer.addTo(map);
-
-                                                            // Marker mit Popup
-                                                            L.marker([cfg.lat, cfg.lng]).addTo(map).bindPopup(cfg.title);
-                                                        });
-                                                    });
-                                                    </script>
-
-                                                    <!-- Dark mode: persistenter Umschalter -->
-                                                    <script>
-                                                    (function () {
-                                                        var btn = document.getElementById('theme-toggle');
-                                                        var root = document.documentElement;
-                                                        var storageKey = 'theme-mode';
-
-                                                        function apply(mode) {
-                                                            if (mode === 'dark') {
-                                                                root.classList.add('dark');
-                                                                btn.dataset.mode = 'dark';
-                                                                btn.innerText = '☀️ Hell';
-                                                                btn.setAttribute('aria-pressed', 'true');
-                                                            } else {
-                                                                root.classList.remove('dark');
-                                                                btn.dataset.mode = 'light';
-                                                                btn.innerText = '🌙 Dunkel';
-                                                                btn.setAttribute('aria-pressed', 'false');
-                                                            }
-                                                        }
-
-                                                        function getPreferred() {
-                                                            var stored = localStorage.getItem(storageKey);
-                                                            if (stored === 'dark' || stored === 'light') return stored;
-                                                            return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-                                                        }
-
-                                                        // Initial apply
-                                                        apply(getPreferred());
-
-                                                        // Toggle on click and persist
-                                                        btn.addEventListener('click', function () {
-                                                            var next = btn.dataset.mode === 'dark' ? 'light' : 'dark';
-                                                            apply(next);
-                                                            try { localStorage.setItem(storageKey, next); } catch (e) { /* ignore */ }
-                                                        });
-
-                                                        // If user changes OS-level preference and no explicit choice stored, follow it
-                                                        if (window.matchMedia) {
-                                                            var mq = window.matchMedia('(prefers-color-scheme: dark)');
-                                                            mq.addEventListener ? mq.addEventListener('change', function (e) {
-                                                                if (!localStorage.getItem(storageKey)) apply(e.matches ? 'dark' : 'light');
-                                                            }) : mq.addListener(function (e) {
-                                                                if (!localStorage.getItem(storageKey)) apply(e.matches ? 'dark' : 'light');
-                                                            });
-                                                        }
-                                                    })();
-                                                    </script></div></article>
-                                    border:1px solid rgba(10,20,30,0.06);
-                                    padding:.45rem .75rem;
-                                    border-radius:10px;
-                                    cursor:pointer;
-                                    font-size:.95rem;
-                                }
-                                .tab[aria-selected="true"] {
-                                    box-shadow: 0 8px 20px rgba(32,181,129,0.08);
-                                    outline:3px solid rgba(32,181,129,0.08);
-                                }
-                                .tabpanel {
-                                    margin-top:.75rem;
-                                    padding:1rem;
-                                    background:var(--card);
-                                    border-radius:12px;
-                                    box-shadow:var(--card-shadow);
-                                }
-                                `;
-
-                                var style = document.createElement('style');
-                                style.type = 'text/css';
-                                style.textContent = css;
-                                document.head.appendChild(style);
-
-                                var header = document.querySelector('.wrap > header');
-                                var main = document.querySelector('.wrap > main');
-
-                                var container = document.createElement('div');
-                                container.className = 'tabs';
-                                container.innerHTML = `
-                                    <div role="tablist" aria-label="Hauptbereiche" class="tablist">
-                                        <button class="tab" role="tab" id="tab-about-btn" aria-controls="tab-about" aria-selected="false" data-index="0">About</button>
-                                        <button class="tab" role="tab" id="tab-news-btn" aria-controls="tab-news" aria-selected="false" data-index="1">News</button>
-                                        <button class="tab" role="tab" id="tab-projects-btn" aria-controls="tab-projects" aria-selected="false" data-index="2">Projects</button>
-                                    </div>
-                                    <div id="tab-about" class="tabpanel" role="tabpanel" aria-labelledby="tab-about-btn" aria-hidden="true">
-                                        <h2 style="margin-top:0;margin-bottom:.5rem;font-size:1.05rem;">About</h2>
-                                        <p style="margin:0;color:var(--muted);">
-                                            Ich absolviere ein Duales Studium der Geoinformatik und Vermessung in Frankfurt und Mainz.
-                                            Nebenher reise ich gerne und interessiere mich u.a. für Fußball und Tischtennis.
-                                        </p>
-                                    </div>
-                                    <div id="tab-news" class="tabpanel" role="tabpanel" aria-labelledby="tab-news-btn" aria-hidden="true" hidden>
-                                        <h2 style="margin-top:0;margin-bottom:.5rem;font-size:1.05rem;">News</h2>
-                                        <p style="margin:0;color:var(--muted);">Aktuelle Infos: Keine neuen Meldungen.</p>
-                                    </div>
-                                    <div id="tab-projects" class="tabpanel" role="tabpanel" aria-labelledby="tab-projects-btn" aria-hidden="true" hidden>
-                                        <h2 style="margin-top:0;margin-bottom:.5rem;font-size:1.05rem;">Projects</h2>
-                                        <p style="margin:0;color:var(--muted);">Aktuelle Projekte: —</p>
-                                    </div>
-                                `;
-
-                                // Einfügen oberhalb des main-Elements
-                                if (main && header) {
-                                    header.after(container);
-                                } else if (main) {
-                                    main.parentNode.insertBefore(container, main);
-                                } else {
-                                    // Fallback: ans Ende von .wrap
-                                    var wrap = document.querySelector('.wrap');
-                                    if (wrap) wrap.appendChild(container);
-                                }
-
-                                var tabs = container.querySelectorAll('[role="tab"]');
-                                var panels = container.querySelectorAll('[role="tabpanel"]');
-                                var storageKey = 'active-tab-index';
-
-                                function activate(index, setFocus) {
-                                    tabs.forEach(function (t, i) {
-                                        var selected = i === index;
-                                        t.setAttribute('aria-selected', selected ? 'true' : 'false');
-                                        if (selected && setFocus) t.focus();
-                                    });
-                                    panels.forEach(function (p, i) {
-                                        var visible = i === index;
-                                        p.hidden = !visible;
-                                        p.setAttribute('aria-hidden', (!visible).toString());
-
-                                        // Entferne potentiell eingebetteten Skript-/Style-Code und schütze vor angezeigtem Roh-HTML
-                                        try {
-                                            // Entferne schädliche oder störende Elemente
-                                            p.querySelectorAll('script, style, link').forEach(function (el) { el.remove(); });
-
-                                            // Wenn der Panel-Text offensichtlich ein komplettes HTML-Dokument oder Doctype enthält,
-                                            // ersetze den Inhalt durch eine neutrale Meldung (verhindert Anzeige von Quellcode).
-                                            var txt = p.textContent || '';
-                                            if (/<\s*(?:!doctype|html|head|body|\/html)/i.test(txt)) {
-                                                p.innerHTML = '<p style="margin:0;color:var(--muted);">Inhalt wurde entfernt.</p>';
-                                            }
-                                        } catch (e) {
-                                            // still proceed silently on error
-                                        }
-                                    });
-                                    });
-                                    try { localStorage.setItem(storageKey, String(index)); } catch (e) {}
-                                }
-
-                                // Keyboard navigation (ArrowLeft, ArrowRight, Home, End)
-                                container.addEventListener('keydown', function (e) {
-                                    var activeIndex = Array.prototype.findIndex.call(tabs, function (t) { return t.getAttribute('aria-selected') === 'true'; });
-                                    if (activeIndex < 0) activeIndex = 0;
-                                    if (e.key === 'ArrowRight') { e.preventDefault(); activate((activeIndex + 1) % tabs.length, true); }
-                                    else if (e.key === 'ArrowLeft') {
-                                        e.preventDefault();
-                                        // Springe zum vorherigen Tab, überspringe leere Panels (z.B. News/Projects)
-                                        var prev = (activeIndex - 1 + tabs.length) % tabs.length;
-                                        var tries = 0;
-                                        while (tries < tabs.length && panels[prev] && panels[prev].textContent.trim() === '') {
-                                            prev = (prev - 1 + tabs.length) % tabs.length;
-                                            tries++;
-                                        }
-                                        activate(prev, true);
-                                    }
-                                    else if (e.key === 'Home') { e.preventDefault(); activate(0, true); }
-                                    else if (e.key === 'End') { e.preventDefault(); activate(tabs.length - 1, true); }
-                                });
-
-                                tabs.forEach(function (t, i) {
-                                    t.addEventListener('click', function () { activate(i, false); });
-                                });
-
-                                // Initial state from storage or default to first tab
-                                var start = 0;
-                                try { var stored = parseInt(localStorage.getItem(storageKey), 10); if (!isNaN(stored) && stored >= 0 && stored < tabs.length) start = stored; } catch (e) {}
-                                activate(start, false);
-                            } catch (e) {
-                                // Falls etwas schiefgeht, nicht fatal
-                                console.error('Tabs init failed', e);
-                            }
-                            return null;
-                        })(),
-                        'map-hanau':      { lat: 50.131900, lng: 8.916100, title: 'Hanau' }
-                    };
-
-                    Object.keys(places).forEach(function (id) {
-                        var el = document.getElementById(id);
-                        if (!el) return; // Element nicht vorhanden -> überspringen
-
-                        var cfg = places[id];
-                        var map = L.map(el, { scrollWheelZoom: false }).setView([cfg.lat, cfg.lng], 12);
-                        tileLayer.addTo(map);
-
-                        // Marker mit Popup
-                        L.marker([cfg.lat, cfg.lng]).addTo(map).bindPopup(cfg.title);
-                    });
+            <section id="tab-projects" class="tabpanel" role="tabpanel" aria-labelledby="tab-projects-btn" hidden>
+                <div class="tabpanel">
+                    <h2 style="margin-top:0;margin-bottom:.5rem;font-size:1.05rem;">Projects</h2>
+                    <p style="margin:0;color:var(--muted);">Aktuelle Projekte: —</p>
+                </div>
+            </section>
+
+        </main>
+
+        <footer>
+            <p>&copy; Lars Grasmück</p>
+        </footer>
+    </div>
+
+    <!-- Leaflet JS (einmalig) -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+    // Karten- und UI-Initialisierung
+    document.addEventListener('DOMContentLoaded', function () {
+        // Tabs: einfaches, zugängliches Verhalten
+        (function initTabs() {
+            var tabs = document.querySelectorAll('[role="tab"]');
+            var panels = document.querySelectorAll('[role="tabpanel"]');
+            var storageKey = 'active-tab-index';
+
+            function activate(index, setFocus) {
+                tabs.forEach(function (t, i) {
+                    var selected = i === index;
+                    t.setAttribute('aria-selected', selected ? 'true' : 'false');
                 });
-                </script>
+                panels.forEach(function (p, i) {
+                    var visible = i === index;
+                    p.hidden = !visible;
+                    p.setAttribute('aria-hidden', (!visible).toString());
+                });
+                try { localStorage.setItem(storageKey, String(index)); } catch (e) {}
+            }
 
-                <!-- Dark mode: persistenter Umschalter -->
-                <script>
-                (function () {
-                    var btn = document.getElementById('theme-toggle');
-                    var root = document.documentElement;
-                    var storageKey = 'theme-mode';
+            tabs.forEach(function (t, i) {
+                t.addEventListener('click', function () { activate(i, true); });
+                t.addEventListener('keydown', function (e) {
+                    var idx = Array.prototype.indexOf.call(tabs, t);
+                    if (e.key === 'ArrowRight') activate((idx + 1) % tabs.length, true);
+                    else if (e.key === 'ArrowLeft') activate((idx - 1 + tabs.length) % tabs.length, true);
+                    else if (e.key === 'Home') activate(0, true);
+                    else if (e.key === 'End') activate(tabs.length - 1, true);
+                });
+            });
 
-                    function apply(mode) {
-                        if (mode === 'dark') {
-                            root.classList.add('dark');
-                            btn.dataset.mode = 'dark';
-                            btn.innerText = '☀️ Hell';
-                            btn.setAttribute('aria-pressed', 'true');
-                        } else {
-                            root.classList.remove('dark');
-                            btn.dataset.mode = 'light';
-                            btn.innerText = '🌙 Dunkel';
-                            btn.setAttribute('aria-pressed', 'false');
+            var start = 0;
+            try { var stored = parseInt(localStorage.getItem(storageKey), 10); if (!isNaN(stored) && stored >= 0 && stored < tabs.length) start = stored; } catch (e) {}
+            activate(start, false);
+        })();
+
+        // Karten-Konfiguration
+        var places = {
+            'map-mainz':     { lat: 49.992861, lng: 8.247253, title: 'Mainz' },
+            'map-frankfurt': { lat: 50.110924, lng: 8.682127, title: 'Frankfurt am Main' },
+            'map-hanau':     { lat: 50.131900, lng: 8.916100, title: 'Hanau' }
+        };
+
+        var tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+        var attribution = '&copy; OpenStreetMap contributors';
+
+        Object.keys(places).forEach(function (id) {
+            var el = document.getElementById(id);
+            if (!el) return;
+
+            // Leere Inhalte (falls mehrfach initialisiert)
+            el.innerHTML = '';
+
+            var cfg = places[id];
+            var map = L.map(el, { scrollWheelZoom: false }).setView([cfg.lat, cfg.lng], 12);
+            L.tileLayer(tileUrl, { attribution: attribution }).addTo(map);
+            L.marker([cfg.lat, cfg.lng]).addTo(map).bindPopup(cfg.title);
+
+            // Wenn die Karte versteckt war, sorgt invalidateSize für korrekte Darstellung
+            setTimeout(function () { map.invalidateSize(); }, 250);
+        });
+
+        // Theme Toggle
+        (function initTheme() {
+            var btn = document.getElementById('theme-toggle');
+            var root = document.documentElement;
+            var storageKey = 'theme-mode';
+
+            function apply(mode) {
+                if (mode === 'dark') {
+                    root.classList.add('dark');
+                    btn.dataset.mode = 'dark';
+                    btn.innerText = '☀️ Hell';
+                    btn.setAttribute('aria-pressed', 'true');
+                } else {
+                    root.classList.remove('dark');
+                    btn.dataset.mode = 'light';
+                    btn.innerText = '🌙 Dunkel';
+                    btn.setAttribute('aria-pressed', 'false');
+                }
+            }
+
+            function getPreferred() {
+                var stored = localStorage.getItem(storageKey);
+                if (stored === 'dark' || stored === 'light') return stored;
+                return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+
+            apply(getPreferred());
+
+            btn.addEventListener('click', function () {
+                var next = btn.dataset.mode === 'dark' ? 'light' : 'dark';
+                apply(next);
+                try { localStorage.setItem(storageKey, next); } catch (e) {}
+            });
+
+            if (window.matchMedia) {
+                var mq = window.matchMedia('(prefers-color-scheme: dark)');
+                if (mq.addEventListener) mq.addEventListener('change', function (e) { if (!localStorage.getItem(storageKey)) apply(e.matches ? 'dark' : 'light'); });
+                else if (mq.addListener) mq.addListener(function (e) { if (!localStorage.getItem(storageKey)) apply(e.matches ? 'dark' : 'light'); });
+            }
+        })();
+
+        // Dynamisches Laden der News aus assets/news.json
+        function loadNews() {
+            var container = document.getElementById('news-list');
+            if (!container) return;
+
+            fetch('assets/news.json', { cache: 'no-store' })
+                .then(function (res) {
+                    if (!res.ok) throw new Error('Netzwerkfehler');
+                    return res.json();
+                })
+                .then(function (items) {
+                    container.innerHTML = '';
+                    if (!items || !items.length) {
+                        container.innerHTML = '<p style="color:var(--muted);">Derzeit keine Meldungen.</p>';
+                        return;
+                    }
+
+                    items.forEach(function (it) {
+                        var article = document.createElement('article');
+                        article.className = 'card';
+                        article.setAttribute('role', 'article');
+
+                        var imgHtml = '';
+                        if (it.image) {
+                            imgHtml = '<img src="' + encodeURI(it.image) + '" alt="' + (it.title ? it.title : '') + '" style="width:100%;height:120px;object-fit:cover;">';
                         }
-                    }
 
-                    function getPreferred() {
-                        var stored = localStorage.getItem(storageKey);
-                        if (stored === 'dark' || stored === 'light') return stored;
-                        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-                    }
+                        var dateStr = it.date ? (new Date(it.date)).toLocaleDateString('de-DE', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
 
-                    // Initial apply
-                    apply(getPreferred());
+                        article.innerHTML = '\n                            ' + imgHtml + '\n                            <div class="card-content">\n                                <h3>' + (it.title || '') + '</h3>\n                                <time datetime="' + (it.date || '') + '" style="display:block;color:var(--muted);font-size:.9rem;margin-bottom:.35rem;">' + dateStr + '</time>\n                                <p style="margin:0;color:var(--muted);">' + (it.excerpt || '') + '</p>\n                            </div>';
 
-                    // Toggle on click and persist
-                    btn.addEventListener('click', function () {
-                        var next = btn.dataset.mode === 'dark' ? 'light' : 'dark';
-                        apply(next);
-                        try { localStorage.setItem(storageKey, next); } catch (e) { /* ignore */ }
+                        container.appendChild(article);
                     });
+                })
+                .catch(function (err) {
+                    container.innerHTML = '<p style="color:var(--muted);">Fehler beim Laden der Meldungen.</p>';
+                    console.error('News load failed', err);
+                });
+        }
 
-                    // If user changes OS-level preference and no explicit choice stored, follow it
-                    if (window.matchMedia) {
-                        var mq = window.matchMedia('(prefers-color-scheme: dark)');
-                        mq.addEventListener ? mq.addEventListener('change', function (e) {
-                            if (!localStorage.getItem(storageKey)) apply(e.matches ? 'dark' : 'light');
-                        }) : mq.addListener(function (e) {
-                            if (!localStorage.getItem(storageKey)) apply(e.matches ? 'dark' : 'light');
-                        });
-                    }
-                })();
-                </script>
+        // News laden (einmal nach DOMContentLoaded)
+        loadNews();
+
+    });
+    </script>
+</body>
+</html>
