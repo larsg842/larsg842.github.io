@@ -5,6 +5,195 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Persönliche Startseite — Lars G.</title>
 
+    <style>
+        /* Tabs: simple, accessible */
+        .tabs { margin: 0 0 1rem 0; }
+        .tablist { display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; }
+        .tab {
+            background:var(--card);
+            color:var(--text);
+            border:1px solid rgba(10,20,30,0.06);
+            padding:.45rem .75rem;
+            border-radius:10px;
+            cursor:pointer;
+            font-size:.95rem;
+        }
+        .tab[aria-selected="true"] {
+            box-shadow: 0 8px 20px rgba(32,181,129,0.08);
+            outline:3px solid rgba(32,181,129,0.08);
+        }
+        .tabpanel {
+            margin-top:.75rem;
+            padding:0;
+            background:transparent;
+            border-radius:12px;
+            display:none;
+        }
+        .tabpanel[aria-hidden="false"] { display:block; }
+        /* keep layout of .wrap unchanged (remove previous fullpage override) */
+    </style>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var header = document.querySelector('.wrap > header');
+        var main = document.querySelector('.wrap > main');
+        if (!main) return;
+
+        // Build tab control and panels
+        var container = document.createElement('div');
+        container.className = 'tabs';
+        container.innerHTML = ''
+          + '<div role="tablist" class="tablist" aria-label="Hauptbereiche">'
+          +   '<button class="tab" role="tab" id="tab-about-btn" aria-controls="panel-about" aria-selected="true">About</button>'
+          +   '<button class="tab" role="tab" id="tab-news-btn" aria-controls="panel-news" aria-selected="false">News</button>'
+          +   '<button class="tab" role="tab" id="tab-projects-btn" aria-controls="panel-projects" aria-selected="false">Projects</button>'
+          + '</div>'
+          + '<div id="panel-about" class="tabpanel" role="tabpanel" aria-labelledby="tab-about-btn" aria-hidden="false"></div>'
+          + '<div id="panel-news" class="tabpanel" role="tabpanel" aria-labelledby="tab-news-btn" aria-hidden="true"></div>'
+          + '<div id="panel-projects" class="tabpanel" role="tabpanel" aria-labelledby="tab-projects-btn" aria-hidden="true"></div>';
+
+        // Insert tabs below header (or before main as fallback)
+        if (header) header.after(container);
+        else main.parentNode.insertBefore(container, main);
+
+        // Move existing content into About panel so "About" shows timeline + cards
+        var aboutPanel = document.getElementById('panel-about');
+        var timeline = document.querySelector('.timeline');
+        var cards = document.querySelector('.cards');
+        var gallery = document.querySelector('.gallery');
+
+        if (timeline) aboutPanel.appendChild(timeline);
+        if (cards) aboutPanel.appendChild(cards);
+        if (gallery) aboutPanel.appendChild(gallery);
+
+        // Tab behavior (click + basic keyboard navigation)
+        var tabs = container.querySelectorAll('[role="tab"]');
+        var panels = container.querySelectorAll('[role="tabpanel"]');
+
+        function activate(index, setFocus) {
+            tabs.forEach(function (t, i) {
+                var sel = i === index;
+                t.setAttribute('aria-selected', sel ? 'true' : 'false');
+                t.tabIndex = sel ? 0 : -1;
+            });
+            panels.forEach(function (p, i) {
+                var visible = i === index;
+                p.setAttribute('aria-hidden', (!visible).toString());
+            });
+            if (setFocus) tabs[index].focus();
+        }
+
+        tabs.forEach(function (t, i) {
+            t.addEventListener('click', function () { activate(i, true); });
+            t.addEventListener('keydown', function (e) {
+                var idx = Array.prototype.indexOf.call(tabs, t);
+                if (e.key === 'ArrowRight') { e.preventDefault(); activate((idx + 1) % tabs.length, true); }
+                else if (e.key === 'ArrowLeft') { e.preventDefault(); activate((idx - 1 + tabs.length) % tabs.length, true); }
+                else if (e.key === 'Home') { e.preventDefault(); activate(0, true); }
+                else if (e.key === 'End') { e.preventDefault(); activate(tabs.length - 1, true); }
+            });
+        });
+
+        // initial state: About
+        activate(0, false);
+
+        // Dark mode: persistent toggle (uses existing #theme-toggle button)
+        var btn = document.getElementById('theme-toggle');
+        var root = document.documentElement;
+        var themeKey = 'theme-mode';
+
+        function applyTheme(mode) {
+            if (mode === 'dark') {
+                root.classList.add('dark');
+                if (btn) { btn.dataset.mode = 'dark'; btn.innerText = '☀️ Hell'; btn.setAttribute('aria-pressed', 'true'); }
+            } else {
+                root.classList.remove('dark');
+                if (btn) { btn.dataset.mode = 'light'; btn.innerText = '🌙 Dunkel'; btn.setAttribute('aria-pressed', 'false'); }
+            }
+        }
+
+        function getPreferredTheme() {
+            try {
+                var stored = localStorage.getItem(themeKey);
+                if (stored === 'dark' || stored === 'light') return stored;
+            } catch (e) { /* ignore */ }
+            return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+
+        // apply initial theme
+        applyTheme(getPreferredTheme());
+
+        // toggle when button clicked
+        if (btn) {
+            btn.addEventListener('click', function () {
+                var next = btn.dataset.mode === 'dark' ? 'light' : 'dark';
+                applyTheme(next);
+                try { localStorage.setItem(themeKey, next); } catch (e) { /* ignore */ }
+            });
+        }
+
+        // follow OS preference when no explicit choice stored
+        if (window.matchMedia) {
+            var mq = window.matchMedia('(prefers-color-scheme: dark)');
+            var listener = function (e) {
+                try {
+                    if (!localStorage.getItem(themeKey)) applyTheme(e.matches ? 'dark' : 'light');
+                } catch (ex) { /* ignore */ }
+            };
+            if (mq.addEventListener) mq.addEventListener('change', listener);
+            else mq.addListener(listener);
+        }
+    });
+    </script>
+
+    <script>
+        /* Einfaches hash-basiertes Routing:
+           - #about (default) zeigt Timeline + Cards
+           - #timeline zeigt nur die Timeline-Section
+           - #maps zeigt nur die Karten-Card-Liste (.cards)
+           - #map-{name} zeigt die einzelne Karte / Karte-Card (z.B. #map-mainz)
+           Andere Inhalte werden ausgeblendet, es gibt keine "gemeinsame" Seite mehr. */
+        document.addEventListener('DOMContentLoaded', function () {
+            function showRoute() {
+                var hash = location.hash || '#about';
+                var wrap = document.querySelector('.wrap');
+                if (!wrap) return;
+
+                // Sammle Referenzen (falls vorhanden)
+                var timeline = document.querySelector('.timeline');
+                var cards = document.querySelector('.cards');
+
+                // Leere wrap und füge nur das ein, was zur Route gehört
+                wrap.innerHTML = '';
+
+                if (hash === '#timeline') {
+                    if (timeline) wrap.appendChild(timeline);
+                } else if (hash === '#maps') {
+                    if (cards) wrap.appendChild(cards);
+                } else if (hash.startsWith('#map-')) {
+                    // zeigt eine einzelne Karte (Karten-Div befindet sich in .card)
+                    var mapDiv = document.getElementById(hash.slice(1));
+                    if (mapDiv) {
+                        var parentCard = mapDiv.closest('.card') || mapDiv.parentElement;
+                        if (parentCard) wrap.appendChild(parentCard);
+                        else wrap.appendChild(mapDiv);
+                    }
+                } else { // '#about' oder Standard: Timeline + Cards (als eigene "Unterseite")
+                    if (timeline) wrap.appendChild(timeline);
+                    if (cards) wrap.appendChild(cards);
+                }
+
+                // Sicherstellen, dass die gewählte Ansicht den Viewport füllt
+                wrap.style.minHeight = '100vh';
+            }
+
+            window.addEventListener('hashchange', showRoute, false);
+            // initial
+            if (!location.hash) location.replace('#about');
+            showRoute();
+        });
+    </script>
+
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
