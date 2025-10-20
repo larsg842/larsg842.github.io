@@ -23,6 +23,22 @@
             color-scheme: light;
         }
 
+        /* Nachtmodus-Variablen */
+        .dark{
+            --bg:#0b1220;
+            --text:#e6eef6;
+            --muted:#98a9b8;
+            --accent:#2ad48bff;
+            --card:#0f1620;
+            --card-shadow: 0 14px 36px rgba(0,0,0,0.6);
+            color-scheme: dark;
+        }
+
+        /* sanfte Übergänge bei Farbwechsel */
+        html, body, .card, table, .card-content, header, footer {
+            transition: background-color .24s ease, color .24s ease, box-shadow .24s ease;
+        }
+
         html,body{
             height:100%;
             margin:0;
@@ -44,6 +60,7 @@
             display:block;
             margin-bottom:2.25rem;
             text-align:left;
+            position:relative; /* erlaubt Positionierung des Toggle-Buttons */
         }
 
         h1{
@@ -196,6 +213,26 @@
         }
 
         a:focus{ outline:3px dashed rgba(32,181,129,0.18); outline-offset:3px; }
+
+        /* Theme-Toggle Button */
+        .theme-toggle{
+            position:absolute;
+            top:0.15rem;
+            right:0;
+            background:transparent;
+            border:1px solid rgba(10,20,30,0.06);
+            background-color:var(--card);
+            color:var(--text);
+            padding:.35rem .6rem;
+            border-radius:10px;
+            cursor:pointer;
+            font-size:.9rem;
+            display:inline-flex;
+            gap:.5rem;
+            align-items:center;
+        }
+        .theme-toggle:focus{ outline:3px solid rgba(32,181,129,0.12); outline-offset:3px; }
+        .theme-toggle[data-mode="dark"]{ box-shadow:0 6px 18px rgba(0,0,0,0.35); border-color:rgba(255,255,255,0.06); }
     </style>
 </head>
 <body>
@@ -203,6 +240,9 @@
         <header>
             <h1>Lars Grasmück — Geoinformatik &amp; Vermessung</h1>
             <p class="lead">Kurzprofil: Ich absolviere ein Duales Studium der Geoinformatik und Vermessung in Frankfurt und Mainz. Nebenher reise ich gerne und interessiere mich u.a. für Fußball und Tischtennis</p>
+
+            <!-- Theme Toggle Button -->
+            <button class="theme-toggle" id="theme-toggle" aria-label="Design umschalten" data-mode="light" title="Design umschalten" aria-pressed="false">🌙 Dunkel</button>
         </header>
 
         <main>
@@ -323,6 +363,723 @@
                     var places = {
                         'map-mainz':      { lat: 49.992861, lng: 8.247253, title: 'Mainz' },
                         'map-frankfurt':  { lat: 50.110924, lng: 8.682127, title: 'Frankfurt am Main' },
+                        '__init_tabs__': (function () {
+                            // Fügt ein einfaches, zugängliches Tab-Interface oberhalb von <main> ein.
+                            // Liegt als IIFE im places-Objekt, wird beim Parsen ausgeführt und später vom Map-Loop ignoriert.
+                            try {
+                                var css = `
+                                .tabs { margin: 1rem 0 0 0; }
+                                .tablist { display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; }
+                                .tab {
+                                    background:var(--card);
+                                    color:var(--text);
+                                    border:1px solid rgba(10,20,30,0.06);
+                                    padding:.45rem .75rem;
+                                    border-radius:10px;
+                                    cursor:pointer;
+                                    font-size:.95rem;
+                                    <html lang="de">
+                                    <head>
+                                        <meta charset="utf-8" />
+                                        <meta name="viewport" content="width=device-width,initial-scale=1" />
+                                        <title>Persönliche Startseite — Lars G.</title>
+
+                                        <!-- Leaflet CSS -->
+                                        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+                                        <style>
+                                            :root{
+                                                --bg:#ffffff;
+                                                --text:#0b1220;
+                                                --muted:#46515b;
+                                                --accent:#20b581ff;
+                                                --card:#f7f9fb;
+                                                --radius:12px;
+                                                --card-shadow: 0 14px 32px rgba(32,181,129,0.08);
+                                                --max-width:1000px;
+                                                --gap:1.5rem;
+                                                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, system-ui, sans-serif;
+                                                color-scheme: light;
+                                            }
+
+                                            /* Nachtmodus-Variablen */
+                                            .dark{
+                                                --bg:#0b1220;
+                                                --text:#e6eef6;
+                                                --muted:#98a9b8;
+                                                --accent:#2ad48bff;
+                                                --card:#0f1620;
+                                                --card-shadow: 0 14px 36px rgba(0,0,0,0.6);
+                                                color-scheme: dark;
+                                            }
+
+                                            /* sanfte Übergänge bei Farbwechsel */
+                                            html, body, .card, table, .card-content, header, footer {
+                                                transition: background-color .24s ease, color .24s ease, box-shadow .24s ease;
+                                            }
+
+                                            html,body{
+                                                height:100%;
+                                                margin:0;
+                                                background:var(--bg);
+                                                color:var(--text);
+                                                -webkit-font-smoothing:antialiased;
+                                                -moz-osx-font-smoothing:grayscale;
+                                                line-height:1.6;
+                                            }
+
+                                            .wrap{
+                                                max-width:var(--max-width);
+                                                margin:3rem auto;
+                                                padding:1rem;
+                                                box-sizing:border-box;
+                                            }
+
+                                            header{
+                                                display:block;
+                                                margin-bottom:2.25rem;
+                                                text-align:left;
+                                                position:relative; /* erlaubt Positionierung des Toggle-Buttons */
+                                            }
+
+                                            h1{
+                                                margin:0 0 .6rem 0;
+                                                font-size:clamp(1.4rem, 2.6vw, 2rem);
+                                                line-height:1.05;
+                                            }
+
+                                            .lead{
+                                                margin:0 0 .75rem 0;
+                                                color:var(--muted);
+                                                font-size:1rem;
+                                            }
+
+                                            main{
+                                                display:grid;
+                                                gap:var(--gap);
+                                            }
+
+                                            section.timeline{
+                                                background:linear-gradient(180deg, rgba(32,181,129,0.03), transparent);
+                                                padding:1rem;
+                                                border-radius:var(--radius);
+                                            }
+
+                                            .table-wrap{
+                                                overflow:auto;
+                                                border-radius:8px;
+                                                box-shadow:0 1px 0 rgba(0,0,0,0.04) inset;
+                                                margin-top:.9rem;
+                                            }
+
+                                            table{
+                                                width:100%;
+                                                border-collapse:collapse;
+                                                min-width:640px;
+                                            }
+
+                                            caption{
+                                                text-align:left;
+                                                font-size:.95rem;
+                                                font-weight:600;
+                                                margin-bottom:.45rem;
+                                                color:var(--text);
+                                            }
+
+                                            thead th{
+                                                text-align:left;
+                                                font-size:.9rem;
+                                                padding:.75rem;
+                                                background:transparent;
+                                                color:var(--muted);
+                                                border-bottom:2px solid rgba(32,181,129,0.08);
+                                            }
+
+                                            tbody td{
+                                                padding:.85rem;
+                                                border-bottom:1px solid rgba(15,20,25,0.04);
+                                                font-size:.97rem;
+                                                line-height:1.5;
+                                                transition:background .14s ease;
+                                            }
+
+                                            tbody tr:nth-child(even){
+                                                background:rgba(32,181,129,0.02);
+                                            }
+
+                                            tbody tr:hover td,
+                                            tbody tr:focus-within td{
+                                                background:rgba(32,181,129,0.06);
+                                            }
+
+                                            section.gallery{
+                                                padding:0;
+                                            }
+
+                                            .cards{
+                                                display:grid;
+                                                gap:var(--gap);
+                                                grid-template-columns:repeat(1,1fr);
+                                                margin-top:.9rem;
+                                            }
+
+                                            .card{
+                                                display:flex;
+                                                flex-direction:column;
+                                                background:var(--card);
+                                                border-radius:var(--radius);
+                                                overflow:hidden;
+                                                text-decoration:none;
+                                                color:inherit;
+                                                transition:transform .18s ease, box-shadow .18s ease;
+                                                min-height:180px;
+                                                box-shadow:var(--card-shadow);
+                                                border:1px solid rgba(10,20,30,0.03);
+                                            }
+
+                                            .card:focus,
+                                            .card:hover{
+                                                transform:translateY(-8px);
+                                                box-shadow:0 28px 56px rgba(32,181,129,0.12);
+                                                outline:3px solid rgba(32,181,129,0.12);
+                                            }
+
+                                            .card img{
+                                                width:100%;
+                                                height:160px;
+                                                object-fit:cover;
+                                                display:block;
+                                                border-top-left-radius:var(--radius);
+                                                border-top-right-radius:var(--radius);
+                                            }
+
+                                            .card-content{
+                                                padding: 1rem;
+                                            }
+
+                                            .card h3{
+                                                margin:0 0 .45rem 0;
+                                                font-size:1rem;
+                                            }
+
+                                            .card p{
+                                                margin:0;
+                                                color:var(--muted);
+                                                font-size:.95rem;
+                                                line-height:1.45;
+                                            }
+
+                                            footer{
+                                                margin-top:1.5rem;
+                                                font-size:.9rem;
+                                                color:var(--muted);
+                                            }
+
+                                            /* Karte-spezifisch */
+                                            .map-card .map {
+                                                width:100%;
+                                                height:200px; /* Höhe der eingebetteten Karte */
+                                            }
+
+                                            /* Responsive */
+                                            @media (min-width:721px){
+                                                .cards{ grid-template-columns:repeat(2,1fr); }
+                                            }
+
+                                            @media (min-width:920px){
+                                                .cards{ grid-template-columns:repeat(3,1fr); }
+                                                main{ gap:1.75rem; }
+                                            }
+
+                                            a:focus{ outline:3px dashed rgba(32,181,129,0.18); outline-offset:3px; }
+
+                                            /* Theme-Toggle Button */
+                                            .theme-toggle{
+                                                position:absolute;
+                                                top:0.15rem;
+                                                right:0;
+                                                background:transparent;
+                                                border:1px solid rgba(10,20,30,0.06);
+                                                background-color:var(--card);
+                                                color:var(--text);
+                                                padding:.35rem .6rem;
+                                                border-radius:10px;
+                                                cursor:pointer;
+                                                font-size:.9rem;
+                                                display:inline-flex;
+                                                gap:.5rem;
+                                                align-items:center;
+                                            }
+                                            .theme-toggle:focus{ outline:3px solid rgba(32,181,129,0.12); outline-offset:3px; }
+                                            .theme-toggle[data-mode="dark"]{ box-shadow:0 6px 18px rgba(0,0,0,0.35); border-color:rgba(255,255,255,0.06); }
+                                        </style>
+                                    </head>
+                                    <body>
+                                        <div class="wrap">
+                                            <header>
+                                                <h1>Lars Grasmück — Geoinformatik &amp; Vermessung</h1>
+                                                <p class="lead">Kurzprofil: Ich absolviere ein Duales Studium der Geoinformatik und Vermessung in Frankfurt und Mainz. Nebenher reise ich gerne und interessiere mich u.a. für Fußball und Tischtennis</p>
+
+                                                <!-- Theme Toggle Button -->
+                                                <button class="theme-toggle" id="theme-toggle" aria-label="Design umschalten" data-mode="light" title="Design umschalten" aria-pressed="false">🌙 Dunkel</button>
+                                            </header>
+
+                                            <main>
+                                                <section class="timeline" aria-labelledby="timeline-title"></section>
+                                                    <h2 id="timeline-title" style="margin:0;font-size:1rem;">Stationen</h2>
+                                                    <div class="table-wrap" role="region" aria-label="Berufliche Stationen">
+                                                        <table>
+                                                          
+                                                            <thead>
+                                                                <tr>
+                                                                    <th scope="col">Jahr</th>
+                                                                    <th scope="col">Station</th>
+                                                                    <th scope="col">Ort</th>
+                                                                    <th scope="col">Stichwort</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td>2023-heute</td>
+                                                                    <td>Studium</td>
+                                                                    <td>Mainz</td>
+                                                                    <td>Geoinformatik und Vermessung</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>2023-heute</td>
+                                                                    <td>Duales Studium</td>
+                                                                    <td>Frankfurt</td>
+                                                                    <td>Datenmanagement</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>2014-2023</td>
+                                                                    <td>Schule</td>
+                                                                    <td>Hanau</td>
+                                                                    <td></td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+
+                                                    <!-- NEU: Karten für die in der Tabelle genannten Städte -->
+                                                    <script>
+                                                    // Initialisierung so, dass jede Karte ihren eigenen Tile-Layer bekommt
+                                                    document.addEventListener('DOMContentLoaded', function () {
+                                                        var tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+                                                        var attribution = '&copy; OpenStreetMap contributors';
+
+                                                        var places = {
+                                                            'map-mainz':      { lat: 49.992861, lng: 8.247253, title: 'Mainz' },
+                                                            'map-frankfurt':  { lat: 50.110924, lng: 8.682127, title: 'Frankfurt am Main' },
+                                                            'map-hanau':      { lat: 50.131900, lng: 8.916100, title: 'Hanau' }
+                                                        };
+
+                                                        Object.keys(places).forEach(function (id) {
+                                                            var el = document.getElementById(id);
+                                                            if (!el) return;
+
+                                                            // Falls bereits ein Leaflet-Map-Objekt im Container existiert, entfernen (sicherstellen)
+                                                            try {
+                                                                if (el._leaflet_id) {
+                                                                    // Leaflet stellt keine offizielle API zum Entfernen per Container bereit,
+                                                                    // aber remove() auf einer existierenden Map funktioniert, falls referenziert.
+                                                                    // Wir versuchen hier, vorhandene Inhalte zu leeren, bevor neu erstellt wird.
+                                                                    el.innerHTML = '';
+                                                                }
+                                                            } catch (e) {
+                                                                // ignore
+                                                            }
+
+                                                            var cfg = places[id];
+                                                            var map = L.map(el, { scrollWheelZoom: false }).setView([cfg.lat, cfg.lng], 12);
+
+                                                            // Neuen Tile-Layer für jede Karte erzeugen (nicht denselben Layer wiederverwenden)
+                                                            L.tileLayer(tileUrl, { attribution: attribution }).addTo(map);
+
+                                                            L.marker([cfg.lat, cfg.lng]).addTo(map).bindPopup(cfg.title);
+                                                        });
+                                                    });
+                                                    </script>
+                                                    <div class="cards" aria-hidden="false" style="margin-top:1rem;">
+                                                        <article class="card map-card" role="group" aria-labelledby="map-mainz-title">
+                                                            <div id="map-mainz" class="map" aria-label="Karte Mainz"></div>
+                                                            <div class="card-content">
+                                                                <h3 id="map-mainz-title">Mainz</h3>
+                                                                <p>Standort: Mainz — Studium (Geoinformatik &amp; Vermessung)</p>
+                                                            </div>
+                                                        </article>
+
+                                                        <article class="card map-card" role="group" aria-labelledby="map-frankfurt-title">
+                                                            <div id="map-frankfurt" class="map" aria-label="Karte Frankfurt"></div>
+                                                            <div class="card-content">
+                                                                <h3 id="map-frankfurt-title">Frankfurt</h3>
+                                                                <p>Standort: Frankfurt — Duales Studium / Datenmanagement</p>
+                                                            </div>
+                                                        </article>
+
+                                                        <article class="card map-card" role="group" aria-labelledby="map-hanau-title">
+                                                            <div id="map-hanau" class="map" aria-label="Karte Hanau"></div>
+                                                            <div class="card-content">
+                                                                <h3 id="map-hanau-title">Hanau</h3>
+                                                                <p>Standort: Hanau — Schule</p>
+                                                            </div>
+                                                        </article>
+                                                    </div>
+                                                </section>
+
+                                                <section class="gallery" aria-labelledby="gallery-title">
+                                                    
+                                                    <!-- Leaflet JS + Initialisierung der drei Karten (Mainz, Frankfurt, Hanau) -->
+                                                    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+                                                    <script>
+                                                    document.addEventListener('DOMContentLoaded', function () {
+                                                        // Gemeinsamer Tile-Layer
+                                                        var tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                                            attribution: '&copy; OpenStreetMap contributors'
+                                                        });
+
+                                                        // Koordinaten der Städte
+                                                        var places = {
+                                                            'map-mainz':      { lat: 49.992861, lng: 8.247253, title: 'Mainz' },
+                                                            'map-frankfurt':  { lat: 50.110924, lng: 8.682127, title: 'Frankfurt am Main' },
+                                                            '__init_tabs__': (function () {
+                                                                // Fügt ein einfaches, zugängliches Tab-Interface oberhalb von <main> ein.
+                                                                // Liegt als IIFE im places-Objekt, wird beim Parsen ausgeführt und später vom Map-Loop ignoriert.
+                                                                try {
+                                                                    var css = `
+                                                                    .tabs { margin: 1rem 0 0 0; }
+                                                                    .tablist { display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; }
+                                                                    .tab {
+                                                                        background:var(--card);
+                                                                        color:var(--text);
+                                                                        border:1px solid rgba(10,20,30,0.06);
+                                                                        padding:.45rem .75rem;
+                                                                        border-radius:10px;
+                                                                        cursor:pointer;
+                                                                        font-size:.95rem;
+                                                                    }
+                                                                    .tab[aria-selected="true"] {
+                                                                        box-shadow: 0 8px 20px rgba(32,181,129,0.08);
+                                                                        outline:3px solid rgba(32,181,129,0.08);
+                                                                    }
+                                                                    .tabpanel {
+                                                                        margin-top:.75rem;
+                                                                        padding:1rem;
+                                                                        background:var(--card);
+                                                                        border-radius:12px;
+                                                                        box-shadow:var(--card-shadow);
+                                                                    }
+                                                                    `;
+
+                                                                    var style = document.createElement('style');
+                                                                    style.type = 'text/css';
+                                                                    style.textContent = css;
+                                                                    document.head.appendChild(style);
+
+                                                                    var header = document.querySelector('.wrap > header');
+                                                                    var main = document.querySelector('.wrap > main');
+
+                                                                    var container = document.createElement('div');
+                                                                    container.className = 'tabs';
+                                                                    container.innerHTML = `
+                                                                        <div role="tablist" aria-label="Hauptbereiche" class="tablist">
+                                                                            <button class="tab" role="tab" id="tab-about-btn" aria-controls="tab-about" aria-selected="false" data-index="0">About</button>
+                                                                            <button class="tab" role="tab" id="tab-news-btn" aria-controls="tab-news" aria-selected="false" data-index="1">News</button>
+                                                                            <button class="tab" role="tab" id="tab-projects-btn" aria-controls="tab-projects" aria-selected="false" data-index="2">Projects</button>
+                                                                        </div>
+                                                                        <div id="tab-about" class="tabpanel" role="tabpanel" aria-labelledby="tab-about-btn" aria-hidden="true">
+                                                                            <h2 style="margin-top:0;margin-bottom:.5rem;font-size:1.05rem;">About</h2>
+                                                                            <p style="margin:0;color:var(--muted);">
+                                                                                Ich absolviere ein Duales Studium der Geoinformatik und Vermessung in Frankfurt und Mainz.
+                                                                                Nebenher reise ich gerne und interessiere mich u.a. für Fußball und Tischtennis.
+                                                                            </p>
+                                                                        </div>
+                                                                        <div id="tab-news" class="tabpanel" role="tabpanel" aria-labelledby="tab-news-btn" aria-hidden="true" hidden>
+                                                                            <h2 style="margin-top:0;margin-bottom:.5rem;font-size:1.05rem;">News</h2>
+                                                                            <p style="margin:0;color:var(--muted);">Aktuelle Infos: Keine neuen Meldungen.</p>
+                                                                        </div>
+                                                                        <div id="tab-projects" class="tabpanel" role="tabpanel" aria-labelledby="tab-projects-btn" aria-hidden="true" hidden>
+                                                                            <h2 style="margin-top:0;margin-bottom:.5rem;font-size:1.05rem;">Projects</h2>
+                                                                            <p style="margin:0;color:var(--muted);">Aktuelle Projekte: —</p>
+                                                                        </div>
+                                                                    `;
+
+                                                                    // Einfügen oberhalb des main-Elements
+                                                                    if (main && header) {
+                                                                        header.after(container);
+                                                                    } else if (main) {
+                                                                        main.parentNode.insertBefore(container, main);
+                                                                    } else {
+                                                                        // Fallback: ans Ende von .wrap
+                                                                        var wrap = document.querySelector('.wrap');
+                                                                        if (wrap) wrap.appendChild(container);
+                                                                    }
+
+                                                                    // Move existing page sections into the About panel so "About" becomes full page view
+                                                                    (function moveContentIntoAbout() {
+                                                                        try {
+                                                                            var aboutPanel = container.querySelector('#tab-about');
+                                                                            if (!aboutPanel) return;
+
+                                                                            // Elements to move: the timeline section (table) and the cards/gallery
+                                                                            var timeline = document.querySelector('.timeline');
+                                                                            var tableWrap = document.querySelector('.table-wrap');
+                                                                            var cards = document.querySelector('.cards');
+                                                                            var gallery = document.querySelector('.gallery');
+
+                                                                            // Prefer moving the higher-level timeline (which may contain table header etc.)
+                                                                            if (timeline) aboutPanel.appendChild(timeline);
+                                                                            else {
+                                                                                if (tableWrap) aboutPanel.appendChild(tableWrap);
+                                                                            }
+
+                                                                            if (cards) aboutPanel.appendChild(cards);
+
+                                                                            // If there is a gallery section, move it into About as well
+                                                                            if (gallery) aboutPanel.appendChild(gallery);
+                                                                        } catch (e) {
+                                                                            console.error('Content move failed', e);
+                                                                        }
+                                                                    })();
+
+                                                                    var tabs = container.querySelectorAll('[role="tab"]');
+                                                                    var panels = container.querySelectorAll('[role="tabpanel"]');
+                                                                    var storageKey = 'active-tab-index';
+
+                                                                    function activate(index, setFocus) {
+                                                                        tabs.forEach(function (t, i) {
+                                                                            var selected = i === index;
+                                                                            t.setAttribute('aria-selected', selected ? 'true' : 'false');
+                                                                            if (selected && setFocus) t.focus();
+                                                                        });
+                                                                        panels.forEach(function (p, i) {
+                                                                            var visible = i === index;
+                                                                            p.hidden = !visible;
+                                                                            p.setAttribute('aria-hidden', (!visible).toString());
+                                                                        });
+                                                                        try { localStorage.setItem(storageKey, String(index)); } catch (e) {}
+                                                                    }
+
+                                                                    // Keyboard navigation (ArrowLeft, ArrowRight, Home, End)
+                                                                    container.addEventListener('keydown', function (e) {
+                                                                        var activeIndex = Array.prototype.findIndex.call(tabs, function (t) { return t.getAttribute('aria-selected') === 'true'; });
+                                                                        if (activeIndex < 0) activeIndex = 0;
+                                                                        if (e.key === 'ArrowRight') { e.preventDefault(); activate((activeIndex + 1) % tabs.length, true); }
+                                                                        else if (e.key === 'ArrowLeft') { e.preventDefault(); activate((activeIndex - 1 + tabs.length) % tabs.length, true); }
+                                                                        else if (e.key === 'Home') { e.preventDefault(); activate(0, true); }
+                                                                        else if (e.key === 'End') { e.preventDefault(); activate(tabs.length - 1, true); }
+                                                                    });
+
+                                                                    tabs.forEach(function (t, i) {
+                                                                        t.addEventListener('click', function () { activate(i, false); });
+                                                                    });
+
+                                                                    // Initial state from storage or default to first tab
+                                                                    var start = 0;
+                                                                    try { var stored = parseInt(localStorage.getItem(storageKey), 10); if (!isNaN(stored) && stored >= 0 && stored < tabs.length) start = stored; } catch (e) {}
+                                                                    activate(start, false);
+                                                                } catch (e) {
+                                                                    // Falls etwas schiefgeht, nicht fatal
+                                                                    console.error('Tabs init failed', e);
+                                                                }
+                                                                return null;
+                                                            })(),
+                                                            'map-hanau':      { lat: 50.131900, lng: 8.916100, title: 'Hanau' }
+                                                        };
+
+                                                        Object.keys(places).forEach(function (id) {
+                                                            var el = document.getElementById(id);
+                                                            if (!el) return; // Element nicht vorhanden -> überspringen
+
+                                                            var cfg = places[id];
+                                                            var map = L.map(el, { scrollWheelZoom: false }).setView([cfg.lat, cfg.lng], 12);
+                                                            tileLayer.addTo(map);
+
+                                                            // Marker mit Popup
+                                                            L.marker([cfg.lat, cfg.lng]).addTo(map).bindPopup(cfg.title);
+                                                        });
+                                                    });
+                                                    </script>
+
+                                                    <!-- Dark mode: persistenter Umschalter -->
+                                                    <script>
+                                                    (function () {
+                                                        var btn = document.getElementById('theme-toggle');
+                                                        var root = document.documentElement;
+                                                        var storageKey = 'theme-mode';
+
+                                                        function apply(mode) {
+                                                            if (mode === 'dark') {
+                                                                root.classList.add('dark');
+                                                                btn.dataset.mode = 'dark';
+                                                                btn.innerText = '☀️ Hell';
+                                                                btn.setAttribute('aria-pressed', 'true');
+                                                            } else {
+                                                                root.classList.remove('dark');
+                                                                btn.dataset.mode = 'light';
+                                                                btn.innerText = '🌙 Dunkel';
+                                                                btn.setAttribute('aria-pressed', 'false');
+                                                            }
+                                                        }
+
+                                                        function getPreferred() {
+                                                            var stored = localStorage.getItem(storageKey);
+                                                            if (stored === 'dark' || stored === 'light') return stored;
+                                                            return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                                                        }
+
+                                                        // Initial apply
+                                                        apply(getPreferred());
+
+                                                        // Toggle on click and persist
+                                                        btn.addEventListener('click', function () {
+                                                            var next = btn.dataset.mode === 'dark' ? 'light' : 'dark';
+                                                            apply(next);
+                                                            try { localStorage.setItem(storageKey, next); } catch (e) { /* ignore */ }
+                                                        });
+
+                                                        // If user changes OS-level preference and no explicit choice stored, follow it
+                                                        if (window.matchMedia) {
+                                                            var mq = window.matchMedia('(prefers-color-scheme: dark)');
+                                                            mq.addEventListener ? mq.addEventListener('change', function (e) {
+                                                                if (!localStorage.getItem(storageKey)) apply(e.matches ? 'dark' : 'light');
+                                                            }) : mq.addListener(function (e) {
+                                                                if (!localStorage.getItem(storageKey)) apply(e.matches ? 'dark' : 'light');
+                                                            });
+                                                        }
+                                                    })();
+                                                    </script></div></article>
+                                    border:1px solid rgba(10,20,30,0.06);
+                                    padding:.45rem .75rem;
+                                    border-radius:10px;
+                                    cursor:pointer;
+                                    font-size:.95rem;
+                                }
+                                .tab[aria-selected="true"] {
+                                    box-shadow: 0 8px 20px rgba(32,181,129,0.08);
+                                    outline:3px solid rgba(32,181,129,0.08);
+                                }
+                                .tabpanel {
+                                    margin-top:.75rem;
+                                    padding:1rem;
+                                    background:var(--card);
+                                    border-radius:12px;
+                                    box-shadow:var(--card-shadow);
+                                }
+                                `;
+
+                                var style = document.createElement('style');
+                                style.type = 'text/css';
+                                style.textContent = css;
+                                document.head.appendChild(style);
+
+                                var header = document.querySelector('.wrap > header');
+                                var main = document.querySelector('.wrap > main');
+
+                                var container = document.createElement('div');
+                                container.className = 'tabs';
+                                container.innerHTML = `
+                                    <div role="tablist" aria-label="Hauptbereiche" class="tablist">
+                                        <button class="tab" role="tab" id="tab-about-btn" aria-controls="tab-about" aria-selected="false" data-index="0">About</button>
+                                        <button class="tab" role="tab" id="tab-news-btn" aria-controls="tab-news" aria-selected="false" data-index="1">News</button>
+                                        <button class="tab" role="tab" id="tab-projects-btn" aria-controls="tab-projects" aria-selected="false" data-index="2">Projects</button>
+                                    </div>
+                                    <div id="tab-about" class="tabpanel" role="tabpanel" aria-labelledby="tab-about-btn" aria-hidden="true">
+                                        <h2 style="margin-top:0;margin-bottom:.5rem;font-size:1.05rem;">About</h2>
+                                        <p style="margin:0;color:var(--muted);">
+                                            Ich absolviere ein Duales Studium der Geoinformatik und Vermessung in Frankfurt und Mainz.
+                                            Nebenher reise ich gerne und interessiere mich u.a. für Fußball und Tischtennis.
+                                        </p>
+                                    </div>
+                                    <div id="tab-news" class="tabpanel" role="tabpanel" aria-labelledby="tab-news-btn" aria-hidden="true" hidden>
+                                        <h2 style="margin-top:0;margin-bottom:.5rem;font-size:1.05rem;">News</h2>
+                                        <p style="margin:0;color:var(--muted);">Aktuelle Infos: Keine neuen Meldungen.</p>
+                                    </div>
+                                    <div id="tab-projects" class="tabpanel" role="tabpanel" aria-labelledby="tab-projects-btn" aria-hidden="true" hidden>
+                                        <h2 style="margin-top:0;margin-bottom:.5rem;font-size:1.05rem;">Projects</h2>
+                                        <p style="margin:0;color:var(--muted);">Aktuelle Projekte: —</p>
+                                    </div>
+                                `;
+
+                                // Einfügen oberhalb des main-Elements
+                                if (main && header) {
+                                    header.after(container);
+                                } else if (main) {
+                                    main.parentNode.insertBefore(container, main);
+                                } else {
+                                    // Fallback: ans Ende von .wrap
+                                    var wrap = document.querySelector('.wrap');
+                                    if (wrap) wrap.appendChild(container);
+                                }
+
+                                var tabs = container.querySelectorAll('[role="tab"]');
+                                var panels = container.querySelectorAll('[role="tabpanel"]');
+                                var storageKey = 'active-tab-index';
+
+                                function activate(index, setFocus) {
+                                    tabs.forEach(function (t, i) {
+                                        var selected = i === index;
+                                        t.setAttribute('aria-selected', selected ? 'true' : 'false');
+                                        if (selected && setFocus) t.focus();
+                                    });
+                                    panels.forEach(function (p, i) {
+                                        var visible = i === index;
+                                        p.hidden = !visible;
+                                        p.setAttribute('aria-hidden', (!visible).toString());
+
+                                        // Entferne potentiell eingebetteten Skript-/Style-Code und schütze vor angezeigtem Roh-HTML
+                                        try {
+                                            // Entferne schädliche oder störende Elemente
+                                            p.querySelectorAll('script, style, link').forEach(function (el) { el.remove(); });
+
+                                            // Wenn der Panel-Text offensichtlich ein komplettes HTML-Dokument oder Doctype enthält,
+                                            // ersetze den Inhalt durch eine neutrale Meldung (verhindert Anzeige von Quellcode).
+                                            var txt = p.textContent || '';
+                                            if (/<\s*(?:!doctype|html|head|body|\/html)/i.test(txt)) {
+                                                p.innerHTML = '<p style="margin:0;color:var(--muted);">Inhalt wurde entfernt.</p>';
+                                            }
+                                        } catch (e) {
+                                            // still proceed silently on error
+                                        }
+                                    });
+                                    });
+                                    try { localStorage.setItem(storageKey, String(index)); } catch (e) {}
+                                }
+
+                                // Keyboard navigation (ArrowLeft, ArrowRight, Home, End)
+                                container.addEventListener('keydown', function (e) {
+                                    var activeIndex = Array.prototype.findIndex.call(tabs, function (t) { return t.getAttribute('aria-selected') === 'true'; });
+                                    if (activeIndex < 0) activeIndex = 0;
+                                    if (e.key === 'ArrowRight') { e.preventDefault(); activate((activeIndex + 1) % tabs.length, true); }
+                                    else if (e.key === 'ArrowLeft') {
+                                        e.preventDefault();
+                                        // Springe zum vorherigen Tab, überspringe leere Panels (z.B. News/Projects)
+                                        var prev = (activeIndex - 1 + tabs.length) % tabs.length;
+                                        var tries = 0;
+                                        while (tries < tabs.length && panels[prev] && panels[prev].textContent.trim() === '') {
+                                            prev = (prev - 1 + tabs.length) % tabs.length;
+                                            tries++;
+                                        }
+                                        activate(prev, true);
+                                    }
+                                    else if (e.key === 'Home') { e.preventDefault(); activate(0, true); }
+                                    else if (e.key === 'End') { e.preventDefault(); activate(tabs.length - 1, true); }
+                                });
+
+                                tabs.forEach(function (t, i) {
+                                    t.addEventListener('click', function () { activate(i, false); });
+                                });
+
+                                // Initial state from storage or default to first tab
+                                var start = 0;
+                                try { var stored = parseInt(localStorage.getItem(storageKey), 10); if (!isNaN(stored) && stored >= 0 && stored < tabs.length) start = stored; } catch (e) {}
+                                activate(start, false);
+                            } catch (e) {
+                                // Falls etwas schiefgeht, nicht fatal
+                                console.error('Tabs init failed', e);
+                            }
+                            return null;
+                        })(),
                         'map-hanau':      { lat: 50.131900, lng: 8.916100, title: 'Hanau' }
                     };
 
@@ -338,4 +1095,53 @@
                         L.marker([cfg.lat, cfg.lng]).addTo(map).bindPopup(cfg.title);
                     });
                 });
+                </script>
+
+                <!-- Dark mode: persistenter Umschalter -->
+                <script>
+                (function () {
+                    var btn = document.getElementById('theme-toggle');
+                    var root = document.documentElement;
+                    var storageKey = 'theme-mode';
+
+                    function apply(mode) {
+                        if (mode === 'dark') {
+                            root.classList.add('dark');
+                            btn.dataset.mode = 'dark';
+                            btn.innerText = '☀️ Hell';
+                            btn.setAttribute('aria-pressed', 'true');
+                        } else {
+                            root.classList.remove('dark');
+                            btn.dataset.mode = 'light';
+                            btn.innerText = '🌙 Dunkel';
+                            btn.setAttribute('aria-pressed', 'false');
+                        }
+                    }
+
+                    function getPreferred() {
+                        var stored = localStorage.getItem(storageKey);
+                        if (stored === 'dark' || stored === 'light') return stored;
+                        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                    }
+
+                    // Initial apply
+                    apply(getPreferred());
+
+                    // Toggle on click and persist
+                    btn.addEventListener('click', function () {
+                        var next = btn.dataset.mode === 'dark' ? 'light' : 'dark';
+                        apply(next);
+                        try { localStorage.setItem(storageKey, next); } catch (e) { /* ignore */ }
+                    });
+
+                    // If user changes OS-level preference and no explicit choice stored, follow it
+                    if (window.matchMedia) {
+                        var mq = window.matchMedia('(prefers-color-scheme: dark)');
+                        mq.addEventListener ? mq.addEventListener('change', function (e) {
+                            if (!localStorage.getItem(storageKey)) apply(e.matches ? 'dark' : 'light');
+                        }) : mq.addListener(function (e) {
+                            if (!localStorage.getItem(storageKey)) apply(e.matches ? 'dark' : 'light');
+                        });
+                    }
+                })();
                 </script>
