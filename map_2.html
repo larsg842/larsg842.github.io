@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_6c94f5af435dd7bc6ec1a4e656a56f00 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_6c94f5af435dd7bc6ec1a4e656a56f00" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_6c94f5af435dd7bc6ec1a4e656a56f00 = L.map(
+                "map_6c94f5af435dd7bc6ec1a4e656a56f00",
+                {
+                    center: [40.0, 45.0],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 3,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_359f7b42962f6a0afd7da2c9dc6dbcfb = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 19,
+  "maxNativeZoom": 19,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_359f7b42962f6a0afd7da2c9dc6dbcfb.addTo(map_6c94f5af435dd7bc6ec1a4e656a56f00);
+        
+    
+            var tile_layer_e2fa1f0d20df90d1233c5fde4a744a1d = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 20,
+  "maxNativeZoom": 20,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
+  "subdomains": "abcd",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_e2fa1f0d20df90d1233c5fde4a744a1d.addTo(map_6c94f5af435dd7bc6ec1a4e656a56f00);
+        
+    
+            var marker_4810f2383148fd175e1980165f61ab4d = L.marker(
+                [47.0707, 15.4395],
+                {
+}
+            ).addTo(map_6c94f5af435dd7bc6ec1a4e656a56f00);
+        
+    
+            var icon_80a903df0c8526d36757426aeb16fcb8 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "info-sign",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_f3bdd5f62ea38aeaf2718000c2791dcf = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_a782f0a970443a88b7ae78be9e4d28de = $(`<div id="html_a782f0a970443a88b7ae78be9e4d28de" style="width: 100.0%; height: 100.0%;"><b>Graz Innenstadt</b><br>Eine schöne Stadt in Österreich.</div>`)[0];
+                popup_f3bdd5f62ea38aeaf2718000c2791dcf.setContent(html_a782f0a970443a88b7ae78be9e4d28de);
+            
+        
+
+        marker_4810f2383148fd175e1980165f61ab4d.bindPopup(popup_f3bdd5f62ea38aeaf2718000c2791dcf)
+        ;
+
+        
+    
+    
+            marker_4810f2383148fd175e1980165f61ab4d.bindTooltip(
+                `<div>
+                     Graz (Innenstadt)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_4810f2383148fd175e1980165f61ab4d.setIcon(icon_80a903df0c8526d36757426aeb16fcb8);
+            
+    
+            var marker_7b408fd9fe6e02180bac12337feb1738 = L.marker(
+                [-22.5609, 17.0832],
+                {
+}
+            ).addTo(map_6c94f5af435dd7bc6ec1a4e656a56f00);
+        
+    
+            var icon_4fffbcef16ae32125653ffc1120df421 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "plane",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_ac1f92e7cbba4fef1a801c7f5463ce09 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_29b07c5c59bd310872828ebaa1c7c195 = $(`<div id="html_29b07c5c59bd310872828ebaa1c7c195" style="width: 100.0%; height: 100.0%;"><b>Flughafen Windhoek</b><br>Der internationale Flughafen von Namibia.</div>`)[0];
+                popup_ac1f92e7cbba4fef1a801c7f5463ce09.setContent(html_29b07c5c59bd310872828ebaa1c7c195);
+            
+        
+
+        marker_7b408fd9fe6e02180bac12337feb1738.bindPopup(popup_ac1f92e7cbba4fef1a801c7f5463ce09)
+        ;
+
+        
+    
+    
+            marker_7b408fd9fe6e02180bac12337feb1738.bindTooltip(
+                `<div>
+                     Flughafen Windhoek
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_7b408fd9fe6e02180bac12337feb1738.setIcon(icon_4fffbcef16ae32125653ffc1120df421);
+            
+    
+            var marker_dda6c25b020dd16b17fc035cbe0fa740 = L.marker(
+                [43.9424, 12.4578],
+                {
+}
+            ).addTo(map_6c94f5af435dd7bc6ec1a4e656a56f00);
+        
+    
+            var icon_a419d45e38d0b094128d7f0fbd2376cc = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "red",
+  "iconColor": "white",
+  "icon": "flag",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_144632f0d63e82cb5ad49b0e0db34076 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_ba60e4ba93a9908b6e295431b46024ab = $(`<div id="html_ba60e4ba93a9908b6e295431b46024ab" style="width: 100.0%; height: 100.0%;"><b>San Marino</b><br>Die Hauptstadt der Republik San Marino.</div>`)[0];
+                popup_144632f0d63e82cb5ad49b0e0db34076.setContent(html_ba60e4ba93a9908b6e295431b46024ab);
+            
+        
+
+        marker_dda6c25b020dd16b17fc035cbe0fa740.bindPopup(popup_144632f0d63e82cb5ad49b0e0db34076)
+        ;
+
+        
+    
+    
+            marker_dda6c25b020dd16b17fc035cbe0fa740.bindTooltip(
+                `<div>
+                     San Marino
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_dda6c25b020dd16b17fc035cbe0fa740.setIcon(icon_a419d45e38d0b094128d7f0fbd2376cc);
+            
+    
+            map_6c94f5af435dd7bc6ec1a4e656a56f00.fitBounds(
+                [[47.0707, 15.4395], [-22.5609, 17.0832], [43.9424, 12.4578]],
+                {"padding": [20, 20]}
+            );
+        
+    
+            var layer_control_fa3498fd10531e0a2dd29f5401dcab39_layers = {
+                base_layers : {
+                    "openstreetmap" : tile_layer_359f7b42962f6a0afd7da2c9dc6dbcfb,
+                    "Carto Light" : tile_layer_e2fa1f0d20df90d1233c5fde4a744a1d,
+                },
+                overlays :  {
+                },
+            };
+            let layer_control_fa3498fd10531e0a2dd29f5401dcab39 = L.control.layers(
+                layer_control_fa3498fd10531e0a2dd29f5401dcab39_layers.base_layers,
+                layer_control_fa3498fd10531e0a2dd29f5401dcab39_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": false,
+  "autoZIndex": true,
+}
+            ).addTo(map_6c94f5af435dd7bc6ec1a4e656a56f00);
+
+        
+    
+            tile_layer_359f7b42962f6a0afd7da2c9dc6dbcfb.addTo(map_6c94f5af435dd7bc6ec1a4e656a56f00);
+        
+    
+            tile_layer_e2fa1f0d20df90d1233c5fde4a744a1d.addTo(map_6c94f5af435dd7bc6ec1a4e656a56f00);
+        
+    
+                marker_4810f2383148fd175e1980165f61ab4d.setIcon(icon_80a903df0c8526d36757426aeb16fcb8);
+            
+    
+                marker_7b408fd9fe6e02180bac12337feb1738.setIcon(icon_4fffbcef16ae32125653ffc1120df421);
+            
+    
+                marker_dda6c25b020dd16b17fc035cbe0fa740.setIcon(icon_a419d45e38d0b094128d7f0fbd2376cc);
+            
+</script>
+</html>

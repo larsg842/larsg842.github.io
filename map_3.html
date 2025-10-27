@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_9a844de87a38134223dd7806f99b552d {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_9a844de87a38134223dd7806f99b552d" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_9a844de87a38134223dd7806f99b552d = L.map(
+                "map_9a844de87a38134223dd7806f99b552d",
+                {
+                    center: [56.5, -4.5],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 7,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_f55cd23707fec04fd693a64ed3182f78 = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 19,
+  "maxNativeZoom": 19,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_f55cd23707fec04fd693a64ed3182f78.addTo(map_9a844de87a38134223dd7806f99b552d);
+        
+    
+            var tile_layer_dd927297760c18393c6c431bd677cddc = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 20,
+  "maxNativeZoom": 20,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
+  "subdomains": "abcd",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_dd927297760c18393c6c431bd677cddc.addTo(map_9a844de87a38134223dd7806f99b552d);
+        
+    
+            var poly_line_de18c33e9dd07ad974999ca8caff15a5 = L.polyline(
+                [[50.1109, 8.6821], [45.9983, 8.9537], [43.9424, 12.4578], [44.4949, 11.3426], [43.7696, 11.2558], [44.4056, 8.9463], [43.7102, 7.262], [44.4056, 8.9463], [45.4642, 9.19], [50.1109, 8.6821]],
+                {"bubblingMouseEvents": true, "color": "red", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "red", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1, "smoothFactor": 1.0, "stroke": true, "weight": 2.5}
+            ).addTo(map_9a844de87a38134223dd7806f99b552d);
+        
+    
+            var marker_b6322b780da88631c922b501948373aa = L.marker(
+                [50.1109, 8.6821],
+                {
+}
+            ).addTo(map_9a844de87a38134223dd7806f99b552d);
+        
+    
+            var div_icon_ccd57a2a750e65460d7da1c0c615366f = L.divIcon({
+  "html": "\u003cdiv style=\"font-size: 12pt; color: red; font-weight: bold;\"\u003e1\u003c/div\u003e",
+  "iconSize": [20, 20],
+  "iconAnchor": [10, 10],
+  "className": "empty",
+});
+        
+    
+            marker_b6322b780da88631c922b501948373aa.bindTooltip(
+                `<div>
+                     1. Frankfurt
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_b6322b780da88631c922b501948373aa.setIcon(div_icon_ccd57a2a750e65460d7da1c0c615366f);
+            
+    
+            var marker_99f3ca369d56db8987a0e5a830220f54 = L.marker(
+                [50.1109, 8.6821],
+                {
+}
+            ).addTo(map_9a844de87a38134223dd7806f99b552d);
+        
+    
+        var popup_c66348f3721100e00829cdc73ef28ceb = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_44ed74188647f4d3e6e1f5592ecd3eea = $(`<div id="html_44ed74188647f4d3e6e1f5592ecd3eea" style="width: 100.0%; height: 100.0%;"><b>Frankfurt</b></div>`)[0];
+                popup_c66348f3721100e00829cdc73ef28ceb.setContent(html_44ed74188647f4d3e6e1f5592ecd3eea);
+            
+        
+
+        marker_99f3ca369d56db8987a0e5a830220f54.bindPopup(popup_c66348f3721100e00829cdc73ef28ceb)
+        ;
+
+        
+    
+    
+            marker_99f3ca369d56db8987a0e5a830220f54.bindTooltip(
+                `<div>
+                     Frankfurt
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_2fec42eacd9c18f0331b46299baa1a5a = L.marker(
+                [45.9983, 8.9537],
+                {
+}
+            ).addTo(map_9a844de87a38134223dd7806f99b552d);
+        
+    
+            var div_icon_9746894dfceccf6bd00a2b2471b6ec06 = L.divIcon({
+  "html": "\u003cdiv style=\"font-size: 12pt; color: red; font-weight: bold;\"\u003e2\u003c/div\u003e",
+  "iconSize": [20, 20],
+  "iconAnchor": [10, 10],
+  "className": "empty",
+});
+        
+    
+            marker_2fec42eacd9c18f0331b46299baa1a5a.bindTooltip(
+                `<div>
+                     2. Lugano
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_2fec42eacd9c18f0331b46299baa1a5a.setIcon(div_icon_9746894dfceccf6bd00a2b2471b6ec06);
+            
+    
+            var marker_8a89380e3407c8ce496d484027c4cf6e = L.marker(
+                [45.9983, 8.9537],
+                {
+}
+            ).addTo(map_9a844de87a38134223dd7806f99b552d);
+        
+    
+        var popup_ac518f275b4166f00e5a4898877bd464 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_3f9e3f2a1dbefb3e67b4b85d3948857e = $(`<div id="html_3f9e3f2a1dbefb3e67b4b85d3948857e" style="width: 100.0%; height: 100.0%;"><b>Lugano</b></div>`)[0];
+                popup_ac518f275b4166f00e5a4898877bd464.setContent(html_3f9e3f2a1dbefb3e67b4b85d3948857e);
+            
+        
+
+        marker_8a89380e3407c8ce496d484027c4cf6e.bindPopup(popup_ac518f275b4166f00e5a4898877bd464)
+        ;
+
+        
+    
+    
+            marker_8a89380e3407c8ce496d484027c4cf6e.bindTooltip(
+                `<div>
+                     Lugano
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_3e07597618cf3809a0b64892b8eb44f3 = L.marker(
+                [43.9424, 12.4578],
+                {
+}
+            ).addTo(map_9a844de87a38134223dd7806f99b552d);
+        
+    
+            var div_icon_0226bdc93a97562d5871366fc4ffda18 = L.divIcon({
+  "html": "\u003cdiv style=\"font-size: 12pt; color: red; font-weight: bold;\"\u003e3\u003c/div\u003e",
+  "iconSize": [20, 20],
+  "iconAnchor": [10, 10],
+  "className": "empty",
+});
+        
+    
+            marker_3e07597618cf3809a0b64892b8eb44f3.bindTooltip(
+                `<div>
+                     3. San Marino
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_3e07597618cf3809a0b64892b8eb44f3.setIcon(div_icon_0226bdc93a97562d5871366fc4ffda18);
+            
+    
+            var marker_5978ee32a7439f142d06a5b481905069 = L.marker(
+                [43.9424, 12.4578],
+                {
+}
+            ).addTo(map_9a844de87a38134223dd7806f99b552d);
+        
+    
+        var popup_908b439ac5d0df911af2cc9a9ed54fcf = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_1121f7b17282e059ed86d5020e0dba76 = $(`<div id="html_1121f7b17282e059ed86d5020e0dba76" style="width: 100.0%; height: 100.0%;"><b>San Marino</b></div>`)[0];
+                popup_908b439ac5d0df911af2cc9a9ed54fcf.setContent(html_1121f7b17282e059ed86d5020e0dba76);
+            
+        
+
+        marker_5978ee32a7439f142d06a5b481905069.bindPopup(popup_908b439ac5d0df911af2cc9a9ed54fcf)
+        ;
+
+        
+    
+    
+            marker_5978ee32a7439f142d06a5b481905069.bindTooltip(
+                `<div>
+                     San Marino
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_1fcf858e7dd3c422c659175ee89e9643 = L.marker(
+                [44.4949, 11.3426],
+                {
+}
+            ).addTo(map_9a844de87a38134223dd7806f99b552d);
+        
+    
+            var div_icon_41b051da9aa85169c9b27137b862b8b2 = L.divIcon({
+  "html": "\u003cdiv style=\"font-size: 12pt; color: red; font-weight: bold;\"\u003e4\u003c/div\u003e",
+  "iconSize": [20, 20],
+  "iconAnchor": [10, 10],
+  "className": "empty",
+});
+        
+    
+            marker_1fcf858e7dd3c422c659175ee89e9643.bindTooltip(
+                `<div>
+                     4. Bologna
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_1fcf858e7dd3c422c659175ee89e9643.setIcon(div_icon_41b051da9aa85169c9b27137b862b8b2);
+            
+    
+            var marker_6bd4ba16a839dc4d8417e90345f99ebe = L.marker(
+                [44.4949, 11.3426],
+                {
+}
+            ).addTo(map_9a844de87a38134223dd7806f99b552d);
+        
+    
+        var popup_53dce0262dad9a1dc96ae238a6505bd6 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_6ca7c3e5b1c626d7c9d4d0dce9e2cb00 = $(`<div id="html_6ca7c3e5b1c626d7c9d4d0dce9e2cb00" style="width: 100.0%; height: 100.0%;"><b>Bologna</b></div>`)[0];
+                popup_53dce0262dad9a1dc96ae238a6505bd6.setContent(html_6ca7c3e5b1c626d7c9d4d0dce9e2cb00);
+            
+        
+
+        marker_6bd4ba16a839dc4d8417e90345f99ebe.bindPopup(popup_53dce0262dad9a1dc96ae238a6505bd6)
+        ;
+
+        
+    
+    
+            marker_6bd4ba16a839dc4d8417e90345f99ebe.bindTooltip(
+                `<div>
+                     Bologna
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_a9637fd0df5d941246c8b2b5f550298f = L.marker(
+                [43.7696, 11.2558],
+                {
+}
+            ).addTo(map_9a844de87a38134223dd7806f99b552d);
+        
+    
+            var div_icon_8f95925111e2ed786a013fe6609636af = L.divIcon({
+  "html": "\u003cdiv style=\"font-size: 12pt; color: red; font-weight: bold;\"\u003e5\u003c/div\u003e",
+  "iconSize": [20, 20],
+  "iconAnchor": [10, 10],
+  "className": "empty",
+});
+        
+    
+            marker_a9637fd0df5d941246c8b2b5f550298f.bindTooltip(
+                `<div>
+                     5. Florence
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_a9637fd0df5d941246c8b2b5f550298f.setIcon(div_icon_8f95925111e2ed786a013fe6609636af);
+            
+    
+            var marker_7a8ce56752c2dae5a119f8eb602468fe = L.marker(
+                [43.7696, 11.2558],
+                {
+}
+            ).addTo(map_9a844de87a38134223dd7806f99b552d);
+        
+    
+        var popup_7e7c9b13c3ae8b27c4e2d9147538d3c4 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_83839194737abef9207bc73e6c1f2f92 = $(`<div id="html_83839194737abef9207bc73e6c1f2f92" style="width: 100.0%; height: 100.0%;"><b>Florence</b></div>`)[0];
+                popup_7e7c9b13c3ae8b27c4e2d9147538d3c4.setContent(html_83839194737abef9207bc73e6c1f2f92);
+            
+        
+
+        marker_7a8ce56752c2dae5a119f8eb602468fe.bindPopup(popup_7e7c9b13c3ae8b27c4e2d9147538d3c4)
+        ;
+
+        
+    
+    
+            marker_7a8ce56752c2dae5a119f8eb602468fe.bindTooltip(
+                `<div>
+                     Florence
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_71101e7b8c387b703ec14074e59072a6 = L.marker(
+                [44.4056, 8.9463],
+                {
+}
+            ).addTo(map_9a844de87a38134223dd7806f99b552d);
+        
+    
+            var div_icon_9ba6270f398b0fad8d833d754f4c4180 = L.divIcon({
+  "html": "\u003cdiv style=\"font-size: 12pt; color: red; font-weight: bold;\"\u003e6\u003c/div\u003e",
+  "iconSize": [20, 20],
+  "iconAnchor": [10, 10],
+  "className": "empty",
+});
+        
+    
+            marker_71101e7b8c387b703ec14074e59072a6.bindTooltip(
+                `<div>
+                     6. Genoa
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_71101e7b8c387b703ec14074e59072a6.setIcon(div_icon_9ba6270f398b0fad8d833d754f4c4180);
+            
+    
+            var marker_abe2ee69fd1da91abf12872fe1b448aa = L.marker(
+                [44.4056, 8.9463],
+                {
+}
+            ).addTo(map_9a844de87a38134223dd7806f99b552d);
+        
+    
+        var popup_1f2849089fa224dea7246ddc955b4786 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_76cdec2c926d1fc2f96d75cb6b2407b4 = $(`<div id="html_76cdec2c926d1fc2f96d75cb6b2407b4" style="width: 100.0%; height: 100.0%;"><b>Genoa</b></div>`)[0];
+                popup_1f2849089fa224dea7246ddc955b4786.setContent(html_76cdec2c926d1fc2f96d75cb6b2407b4);
+            
+        
+
+        marker_abe2ee69fd1da91abf12872fe1b448aa.bindPopup(popup_1f2849089fa224dea7246ddc955b4786)
+        ;
+
+        
+    
+    
+            marker_abe2ee69fd1da91abf12872fe1b448aa.bindTooltip(
+                `<div>
+                     Genoa
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_344b548969d69daa8723b27096ab1fbc = L.marker(
+                [43.7102, 7.262],
+                {
+}
+            ).addTo(map_9a844de87a38134223dd7806f99b552d);
+        
+    
+            var div_icon_fb519570f554d8a900da2748da7a3fa9 = L.divIcon({
+  "html": "\u003cdiv style=\"font-size: 12pt; color: red; font-weight: bold;\"\u003e7\u003c/div\u003e",
+  "iconSize": [20, 20],
+  "iconAnchor": [10, 10],
+  "className": "empty",
+});
+        
+    
+            marker_344b548969d69daa8723b27096ab1fbc.bindTooltip(
+                `<div>
+                     7. Nice
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_344b548969d69daa8723b27096ab1fbc.setIcon(div_icon_fb519570f554d8a900da2748da7a3fa9);
+            
+    
+            var marker_1116b20007adb5d954f703dc8d3daedc = L.marker(
+                [43.7102, 7.262],
+                {
+}
+            ).addTo(map_9a844de87a38134223dd7806f99b552d);
+        
+    
+        var popup_ba3c6a4192acd64eede36f9fe7bea7be = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_2f97ef01686ff904a54d62d21c5820fb = $(`<div id="html_2f97ef01686ff904a54d62d21c5820fb" style="width: 100.0%; height: 100.0%;"><b>Nice</b></div>`)[0];
+                popup_ba3c6a4192acd64eede36f9fe7bea7be.setContent(html_2f97ef01686ff904a54d62d21c5820fb);
+            
+        
+
+        marker_1116b20007adb5d954f703dc8d3daedc.bindPopup(popup_ba3c6a4192acd64eede36f9fe7bea7be)
+        ;
+
+        
+    
+    
+            marker_1116b20007adb5d954f703dc8d3daedc.bindTooltip(
+                `<div>
+                     Nice
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_061f1594bdc03358cfbc0222d4f40a38 = L.marker(
+                [44.4056, 8.9463],
+                {
+}
+            ).addTo(map_9a844de87a38134223dd7806f99b552d);
+        
+    
+            var div_icon_ee96a4cdffbe326adda3a003da02f964 = L.divIcon({
+  "html": "\u003cdiv style=\"font-size: 12pt; color: red; font-weight: bold;\"\u003e8\u003c/div\u003e",
+  "iconSize": [20, 20],
+  "iconAnchor": [10, 10],
+  "className": "empty",
+});
+        
+    
+            marker_061f1594bdc03358cfbc0222d4f40a38.bindTooltip(
+                `<div>
+                     8. Genoa
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_061f1594bdc03358cfbc0222d4f40a38.setIcon(div_icon_ee96a4cdffbe326adda3a003da02f964);
+            
+    
+            var marker_51c6e1396c64929b553e84ca8bad7a4d = L.marker(
+                [44.4056, 8.9463],
+                {
+}
+            ).addTo(map_9a844de87a38134223dd7806f99b552d);
+        
+    
+        var popup_e0653508c43dbae3370c38569d3a1b28 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_4229535ac5bd2562f052473b778fee7c = $(`<div id="html_4229535ac5bd2562f052473b778fee7c" style="width: 100.0%; height: 100.0%;"><b>Genoa</b></div>`)[0];
+                popup_e0653508c43dbae3370c38569d3a1b28.setContent(html_4229535ac5bd2562f052473b778fee7c);
+            
+        
+
+        marker_51c6e1396c64929b553e84ca8bad7a4d.bindPopup(popup_e0653508c43dbae3370c38569d3a1b28)
+        ;
+
+        
+    
+    
+            marker_51c6e1396c64929b553e84ca8bad7a4d.bindTooltip(
+                `<div>
+                     Genoa
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_541601c897ae16d19f452f3231c44de3 = L.marker(
+                [45.4642, 9.19],
+                {
+}
+            ).addTo(map_9a844de87a38134223dd7806f99b552d);
+        
+    
+            var div_icon_9633e515c3d505cbc15db104fc49b63d = L.divIcon({
+  "html": "\u003cdiv style=\"font-size: 12pt; color: red; font-weight: bold;\"\u003e9\u003c/div\u003e",
+  "iconSize": [20, 20],
+  "iconAnchor": [10, 10],
+  "className": "empty",
+});
+        
+    
+            marker_541601c897ae16d19f452f3231c44de3.bindTooltip(
+                `<div>
+                     9. Milan
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_541601c897ae16d19f452f3231c44de3.setIcon(div_icon_9633e515c3d505cbc15db104fc49b63d);
+            
+    
+            var marker_76e8388d10bf7237d34718ad5b51afa5 = L.marker(
+                [45.4642, 9.19],
+                {
+}
+            ).addTo(map_9a844de87a38134223dd7806f99b552d);
+        
+    
+        var popup_42ada65f936ae88ed0b3841fe66db8b9 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_5a2e0f80ed159a09c7e8ffe0245c0532 = $(`<div id="html_5a2e0f80ed159a09c7e8ffe0245c0532" style="width: 100.0%; height: 100.0%;"><b>Milan</b></div>`)[0];
+                popup_42ada65f936ae88ed0b3841fe66db8b9.setContent(html_5a2e0f80ed159a09c7e8ffe0245c0532);
+            
+        
+
+        marker_76e8388d10bf7237d34718ad5b51afa5.bindPopup(popup_42ada65f936ae88ed0b3841fe66db8b9)
+        ;
+
+        
+    
+    
+            marker_76e8388d10bf7237d34718ad5b51afa5.bindTooltip(
+                `<div>
+                     Milan
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_f0b81d16bfaa484949b9eb095c06dd58 = L.marker(
+                [50.1109, 8.6821],
+                {
+}
+            ).addTo(map_9a844de87a38134223dd7806f99b552d);
+        
+    
+            var div_icon_98a3fe484a91f2257955f1bbb8a00b22 = L.divIcon({
+  "html": "\u003cdiv style=\"font-size: 12pt; color: red; font-weight: bold;\"\u003e10\u003c/div\u003e",
+  "iconSize": [20, 20],
+  "iconAnchor": [10, 10],
+  "className": "empty",
+});
+        
+    
+            marker_f0b81d16bfaa484949b9eb095c06dd58.bindTooltip(
+                `<div>
+                     10. Frankfurt
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_f0b81d16bfaa484949b9eb095c06dd58.setIcon(div_icon_98a3fe484a91f2257955f1bbb8a00b22);
+            
+    
+            var marker_9dc473c04d0e2c61140398b9cdc9cfe3 = L.marker(
+                [50.1109, 8.6821],
+                {
+}
+            ).addTo(map_9a844de87a38134223dd7806f99b552d);
+        
+    
+        var popup_d2a508f930e8ca7fd383f5ed2f5adb7d = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_46e0810cf17c7ccd7a0967aff0917d5b = $(`<div id="html_46e0810cf17c7ccd7a0967aff0917d5b" style="width: 100.0%; height: 100.0%;"><b>Frankfurt</b></div>`)[0];
+                popup_d2a508f930e8ca7fd383f5ed2f5adb7d.setContent(html_46e0810cf17c7ccd7a0967aff0917d5b);
+            
+        
+
+        marker_9dc473c04d0e2c61140398b9cdc9cfe3.bindPopup(popup_d2a508f930e8ca7fd383f5ed2f5adb7d)
+        ;
+
+        
+    
+    
+            marker_9dc473c04d0e2c61140398b9cdc9cfe3.bindTooltip(
+                `<div>
+                     Frankfurt
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            tile_layer_f55cd23707fec04fd693a64ed3182f78.addTo(map_9a844de87a38134223dd7806f99b552d);
+        
+    
+            tile_layer_dd927297760c18393c6c431bd677cddc.addTo(map_9a844de87a38134223dd7806f99b552d);
+        
+    
+                marker_b6322b780da88631c922b501948373aa.setIcon(div_icon_ccd57a2a750e65460d7da1c0c615366f);
+            
+    
+                marker_2fec42eacd9c18f0331b46299baa1a5a.setIcon(div_icon_9746894dfceccf6bd00a2b2471b6ec06);
+            
+    
+                marker_3e07597618cf3809a0b64892b8eb44f3.setIcon(div_icon_0226bdc93a97562d5871366fc4ffda18);
+            
+    
+                marker_1fcf858e7dd3c422c659175ee89e9643.setIcon(div_icon_41b051da9aa85169c9b27137b862b8b2);
+            
+    
+                marker_a9637fd0df5d941246c8b2b5f550298f.setIcon(div_icon_8f95925111e2ed786a013fe6609636af);
+            
+    
+                marker_71101e7b8c387b703ec14074e59072a6.setIcon(div_icon_9ba6270f398b0fad8d833d754f4c4180);
+            
+    
+                marker_344b548969d69daa8723b27096ab1fbc.setIcon(div_icon_fb519570f554d8a900da2748da7a3fa9);
+            
+    
+                marker_061f1594bdc03358cfbc0222d4f40a38.setIcon(div_icon_ee96a4cdffbe326adda3a003da02f964);
+            
+    
+                marker_541601c897ae16d19f452f3231c44de3.setIcon(div_icon_9633e515c3d505cbc15db104fc49b63d);
+            
+    
+                marker_f0b81d16bfaa484949b9eb095c06dd58.setIcon(div_icon_98a3fe484a91f2257955f1bbb8a00b22);
+            
+</script>
+</html>
