@@ -329,16 +329,54 @@
                 <div class="tabpanel">
                     <h2 style="margin-top:0;margin-bottom:.5rem;font-size:1.05rem;">News</h2>
                     <div id="news-list" class="cards" aria-live="polite" style="margin-top:.6rem;">
-                        <!-- News werden hier dynamisch aus assets/news.json geladen -->
+                        <article class="card">
+                            <div class="card-content">
+                                <h3>GIS in der Stadtplanung</h3>
+                                <p>Wie GIS-Technologien die urbane Entwicklung revolutionieren.</p>
+                                <p style="color:var(--muted);font-size:0.85rem;">2023-11-01</p>
+                            </div>
+                        </article>
+                        <article class="card">
+                            <div class="card-content">
+                                <h3>Satellitendaten für den Umweltschutz</h3>
+                                <p>Neue Ansätze zur Überwachung von Ökosystemen mit Geodaten.</p>
+                                <p style="color:var(--muted);font-size:0.85rem;">2023-10-15</p>
+                            </div>
+                        </article>
+                        <article class="card">
+                            <div class="card-content">
+                                <h3>Open Data und Geoinformatik</h3>
+                                <p>Die Rolle offener Daten in der modernen Geoinformatik.</p>
+                                <p style="color:var(--muted);font-size:0.85rem;">2023-09-30</p>
+                            </div>
+                        </article>
                     </div>
-                    <noscript style="color:var(--muted);">Bitte aktiviere JavaScript, um die aktuellen Meldungen zu sehen.</noscript>
                 </div>
             </section>
 
             <section id="tab-projects" class="tabpanel" role="tabpanel" aria-labelledby="tab-projects-btn" hidden>
                 <div class="tabpanel">
                     <h2 style="margin-top:0;margin-bottom:.5rem;font-size:1.05rem;">Projects</h2>
-                    <p style="margin:0;color:var(--muted);">Aktuelle Projekte: —</p>
+                    <div class="cards" style="margin-top:1rem;">
+                        <article class="card">
+                            <div class="card-content">
+                                <h3>Smart City Mapping</h3>
+                                <p>Entwicklung interaktiver Karten für smarte Städte.</p>
+                            </div>
+                        </article>
+                        <article class="card">
+                            <div class="card-content">
+                                <h3>3D-Geländemodelle</h3>
+                                <p>Erstellung hochauflösender 3D-Modelle für Umweltanalysen.</p>
+                            </div>
+                        </article>
+                        <article class="card">
+                            <div class="card-content">
+                                <h3>Geodatenanalyse</h3>
+                                <p>Analyse großer Geodatenmengen zur Entscheidungsunterstützung.</p>
+                            </div>
+                        </article>
+                    </div>
                 </div>
             </section>
 
@@ -529,6 +567,63 @@
             map2Frame.addEventListener('error', function () {
                 console.error('Failed to load Map 2 (letzten besuchten Orte).');
             });
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Add dynamic entries for News
+        const newsList = document.getElementById('news-list');
+        if (newsList) {
+            const newsEntries = [
+                { title: 'Neue GIS-Technologien 2023', description: 'Ein Überblick über die neuesten Entwicklungen in der GIS-Welt.', date: '2023-10-01' },
+                { title: 'OpenStreetMap erreicht 10 Millionen Mitwirkende', description: 'Die OpenStreetMap-Community feiert einen neuen Meilenstein.', date: '2023-09-15' },
+                { title: 'Geodaten und Klimawandel', description: 'Wie Geoinformatik zur Bekämpfung des Klimawandels beiträgt.', date: '2023-08-20' }
+            ];
+
+            newsEntries.forEach(news => {
+                const article = document.createElement('article');
+                article.className = 'card';
+                article.innerHTML = `
+                    <div class="card-content">
+                        <h3>${news.title}</h3>
+                        <p>${news.description}</p>
+                        <p style="color:var(--muted);font-size:0.85rem;">${news.date}</p>
+                    </div>
+                `;
+                newsList.appendChild(article);
+            });
+        } else {
+            console.error('News list container not found.');
+        }
+
+        // Add dynamic entries for Projects
+        const projectsPanel = document.querySelector('#tab-projects .tabpanel');
+        if (projectsPanel) {
+            const projects = [
+                { title: '3D-Stadtmodelle', description: 'Erstellung von LoD2-Stadtmodellen für urbane Analysen.' },
+                { title: 'Geodaten-Visualisierung', description: 'Entwicklung interaktiver Karten zur Darstellung von Umweltdaten.' },
+                { title: 'Open Data Integration', description: 'Integration offener Geodatenquellen in bestehende GIS-Systeme.' }
+            ];
+
+            const projectList = document.createElement('div');
+            projectList.className = 'cards';
+            projectList.style.marginTop = '1rem';
+
+            projects.forEach(project => {
+                const projectCard = document.createElement('article');
+                projectCard.className = 'card';
+                projectCard.innerHTML = `
+                    <div class="card-content">
+                        <h3>${project.title}</h3>
+                        <p>${project.description}</p>
+                    </div>
+                `;
+                projectList.appendChild(projectCard);
+            });
+
+            projectsPanel.appendChild(projectList);
+        } else {
+            console.error('Projects panel container not found.');
         }
     });
     </script>
