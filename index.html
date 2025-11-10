@@ -50,42 +50,35 @@
             background: linear-gradient(180deg, rgba(0,0,0,0.02), transparent);
         }
 
-        header {
-            background: var(--accent);
-            color: #fff;
-            padding: 1.5rem 1rem 1rem 1rem;
-            text-align: center;
-            position: relative;
-        }
-        header h1 { margin: 0 0 0.25rem 0; font-size: 2.2rem; letter-spacing: 0.02em; }
-        header p { margin: 0; opacity: 0.95; }
-
-        /* Theme toggle */
-        .theme-toggle {
-            position: absolute;
-            right: 1rem;
-            top: 1rem;
-            background: rgba(255,255,255,0.12);
-            border: 1px solid rgba(255,255,255,0.12);
-            color: white;
-            padding: 0.35rem 0.6rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-        body.dark .theme-toggle {
-            background: rgba(0,0,0,0.24);
-            border-color: rgba(255,255,255,0.06);
-            color: var(--fg);
-        }
-
         main {
-            max-width: 1000px;
-            margin: 1.5rem auto;
+            max-width: 1200px;
+            margin: 2rem auto;
             padding: 0 1rem;
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 2rem;
+        }
+
+        nav.tabs {
+            display: flex;
+            flex-direction: row;
+            gap: 0.5rem;
+            background: transparent;
+            padding: 0;
+            border: none;
+        }
+
+        nav.tabs button {
+            flex: 1;
+            text-align: center;
+        }
+
+        section {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         }
 
         /* Tabs */
@@ -120,8 +113,6 @@
             color: var(--accent);
             background: rgba(58,160,255,0.06);
         }
-
-        section { width: 100%; }
 
         .intro {
             display: flex;
@@ -193,6 +184,19 @@
 
         @media (max-width: 900px) {
             .osm-map { height: 220px; }
+            main {
+                grid-template-columns: 1fr;
+            }
+
+            nav.tabs {
+                flex-direction: row;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
+            section {
+                grid-column: span 1;
+            }
         }
         @media (max-width: 600px) {
             .intro { flex-direction: column; align-items: flex-start; }
@@ -234,12 +238,6 @@
     </style>
 </head>
 <body>
-    <header>
-        <h1>Lars Grasmück</h1>
-        <p>Willkommen auf meiner persönlichen Startseite.</p>
-        <button id="theme-toggle" class="theme-toggle" aria-pressed="false" title="Toggle Dark Mode">Dark</button>
-    </header>
-
     <main>
         <nav class="tabs" role="tablist" aria-label="Hauptnavigation">
             <button role="tab" aria-selected="true" aria-pressed="true" data-target="about">About me</button>
@@ -257,7 +255,7 @@
                     <p>Mein Name ist Lars Grasmück, ich absolviere ein duales Studium Geoinformatik und Vermessung in Frankfurt und Mainz.</p>
                 </div>
                 <figure>
-                    <img src="assets/matterhorn.jpg" alt="Matterhorn" style="width: 100%; height: auto; border-radius: 8px; border: 3px solid var(--accent);">
+                    <img src="matterhorn.jpeg" alt="Matterhorn" style="width: 100%; height: auto; border-radius: 8px; border: 3px solid var(--accent);">
                 </figure>
             </div>
         </section>
@@ -581,6 +579,53 @@
             }
 
         })();
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const tabs = document.querySelectorAll('.tabs button');
+            const panels = document.querySelectorAll('.tab-panel');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Deactivate all tabs and panels
+                    tabs.forEach(t => {
+                        t.setAttribute('aria-selected', 'false');
+                        t.setAttribute('aria-pressed', 'false');
+                    });
+                    panels.forEach(panel => {
+                        panel.classList.remove('active');
+                        panel.setAttribute('aria-hidden', 'true');
+                    });
+
+                    // Activate the clicked tab and corresponding panel
+                    tab.setAttribute('aria-selected', 'true');
+                    tab.setAttribute('aria-pressed', 'true');
+                    const targetId = tab.getAttribute('data-target');
+                    const targetPanel = document.getElementById(targetId);
+                    if (targetPanel) {
+                        targetPanel.classList.add('active');
+                        targetPanel.setAttribute('aria-hidden', 'false');
+                    }
+
+                    // Ensure maps are displayed correctly
+                    if (targetId === 'karten') {
+                        const mapContainers = document.querySelectorAll('.osm-map');
+                        mapContainers.forEach((container, index) => {
+                            if (!container.hasChildNodes()) {
+                                const iframe = document.createElement('iframe');
+                                iframe.src = `map_${index + 1}.html`;
+                                iframe.style.width = '100%';
+                                iframe.style.height = '100%';
+                                iframe.style.border = '0';
+                                iframe.loading = 'lazy';
+                                container.appendChild(iframe);
+                            }
+                        });
+                    }
+                });
+            });
+        });
     </script>
 </body>
 </html>
