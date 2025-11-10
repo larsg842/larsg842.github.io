@@ -475,6 +475,28 @@
             });
         });
     })();
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const tabs = document.querySelectorAll('.tab');
+        const panels = document.querySelectorAll('.tabpanel');
+
+        tabs.forEach((tab) => {
+            tab.addEventListener('click', () => {
+                // Deselect all tabs and hide all panels
+                tabs.forEach((t) => {
+                    t.setAttribute('aria-selected', 'false');
+                });
+                panels.forEach((panel) => {
+                    panel.hidden = true;
+                });
+
+                // Select the clicked tab and show the corresponding panel
+                tab.setAttribute('aria-selected', 'true');
+                const panelId = tab.getAttribute('aria-controls');
+                document.getElementById(panelId).hidden = false;
+            });
+        });
+    });
     </script>
 </body>
 </html>
