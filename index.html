@@ -20,11 +20,11 @@
         }
         /* Dark theme variables */
         body.dark {
-            --bg: #1a1a2e; /* Dunkles Blau Variation */
+            --bg: #000000; /* Schwarz */
             --fg: #e6eef6;
             --accent: #3aa0ff;
-            --card-bg: #16213e; /* Dunkleres Blau */
-            --border: #1f2a37;
+            --card-bg: #121212; /* Dunkleres Schwarz */
+            --border: #1f1f1f;
             --muted: #9fb7d9;
         }
 
@@ -238,6 +238,7 @@
     </style>
 </head>
 <body>
+    <button id="theme-toggle" aria-pressed="false" style="position: fixed; top: 1rem; right: 1rem; z-index: 1000; background: var(--card-bg); color: var(--fg); border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 1rem; cursor: pointer;">Dark</button>
     <main>
         <nav class="tabs" role="tablist" aria-label="Hauptnavigation">
             <button role="tab" aria-selected="true" aria-pressed="true" data-target="about">About me</button>
