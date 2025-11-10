@@ -1,16 +1,36 @@
-[
-  {
-    "id": "n1",
-    "title": "Neue Kartendaten verfügbar",
-    "date": "2025-10-15",
-    "image": "assets/news-map.png",
-    "excerpt": "Wir haben aktuelle OpenStreetMap-Daten für Mainz und Frankfurt eingespielt."
-  },
-  {
-    "id": "n2",
-    "title": "Präsentation zum Dualen Studium",
-    "date": "2025-09-30",
-    "image": "assets/news-presentation.png",
-    "excerpt": "Am 30. September stellte ich unser Projekt zur Vermessung vor Studierenden."
-  }
-]
+{
+    "news": [
+        {
+            "id": "urban1",
+            "title": "3D-Stadtmodelle für nachhaltige Stadtplanung",
+            "date": "2025-10-15",
+            "image": "https://picsum.photos/seed/urban1/800/400",
+            "summary": "Ein neues Projekt nutzt 3D-Stadtmodelle, um die Auswirkungen von Bauprojekten auf die Umwelt und die Lebensqualität zu simulieren.",
+            "link": "#"
+        },
+        {
+            "id": "urban2",
+            "title": "Geodaten für smarte Verkehrssteuerung",
+            "date": "2025-09-30",
+            "image": "https://picsum.photos/seed/urban2/800/400",
+            "summary": "Ein intelligentes Verkehrsmanagementsystem analysiert Geodaten in Echtzeit, um Staus zu reduzieren und den öffentlichen Nahverkehr zu optimieren.",
+            "link": "#"
+        },
+        {
+            "id": "urban3",
+            "title": "Satellitendaten zur Überwachung von Stadtgrün",
+            "date": "2025-09-10",
+            "image": "https://picsum.photos/seed/urban3/800/400",
+            "summary": "Mit Hilfe von Sentinel-2-Daten werden Grünflächen in Städten überwacht, um die Auswirkungen des Klimawandels zu analysieren.",
+            "link": "#"
+        },
+        {
+            "id": "urban4",
+            "title": "Offene Geodaten für Bürgerbeteiligung",
+            "date": "2025-08-25",
+            "image": "https://picsum.photos/seed/urban4/800/400",
+            "summary": "Eine neue Plattform stellt offene Geodaten bereit, um Bürger in die Stadtplanung einzubeziehen und ihre Ideen zu visualisieren.",
+            "link": "#"
+        }
+    ]
+}

@@ -1,631 +1,586 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Persönliche Startseite — Lars G.</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Meine persönliche Startseite</title>
 
     <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <!-- Cesium Widgets CSS -->
-    <link href="https://cesium.com/downloads/cesiumjs/releases/1.125/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
     <style>
-        :root{
-            --bg:#ffffff;
-            --text:#0b1220;
-            --muted:#46515b;
-            --accent:#20b581ff;
-            --card:#f7f9fb;
-            --radius:12px;
-            --card-shadow: 0 14px 32px rgba(32,181,129,0.08);
-            --max-width:1000px;
-            --gap:1.5rem;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, system-ui, sans-serif;
-            color-scheme: light;
+        :root {
+            --bg: #fafaf0; /* Helleres Creme */
+            --fg: #222;
+            --accent: #002147; /* Dunkles Blau */
+            --card-bg: #fffaf0; /* Creme Variation */
+            --map-iframe-src: 'map_1_basiskarte.html';
+            --border: #ccc;
+            --muted: #555;
+        }
+        /* Dark theme variables */
+        body.dark {
+            --bg: #1a1a2e; /* Dunkles Blau Variation */
+            --fg: #e6eef6;
+            --accent: #3aa0ff;
+            --card-bg: #16213e; /* Dunkleres Blau */
+            --border: #1f2a37;
+            --muted: #9fb7d9;
         }
 
-        /* Nachtmodus-Variablen */
-        .dark{
-            --bg:#0b1220;
-            --text:#e6eef6;
-            --muted:#98a9b8;
-            --accent:#2ad48bff;
-            --card:#0f1620;
-            --card-shadow: 0 14px 36px rgba(0,0,0,0.6);
-            color-scheme: dark;
+        html { box-sizing: border-box; }
+        *, *::before, *::after { box-sizing: inherit; }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg);
+            color: var(--fg);
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
         }
 
-        /* sanfte Übergänge bei Farbwechsel */
-        html, body, .card, table, .card-content, header, footer {
-            transition: background-color .24s ease, color .24s ease, box-shadow .24s ease;
+        .osm-map {
+            width: 100%;
+            height: 250px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(180deg, rgba(0,0,0,0.02), transparent);
         }
 
-        html,body{
-            height:100%;
-            margin:0;
-            background:var(--bg);
-            color:var(--text);
-            -webkit-font-smoothing:antialiased;
-            -moz-osx-font-smoothing:grayscale;
-            line-height:1.6;
+        header {
+            background: var(--accent);
+            color: #fff;
+            padding: 1.5rem 1rem 1rem 1rem;
+            text-align: center;
+            position: relative;
+        }
+        header h1 { margin: 0 0 0.25rem 0; font-size: 2.2rem; letter-spacing: 0.02em; }
+        header p { margin: 0; opacity: 0.95; }
+
+        /* Theme toggle */
+        .theme-toggle {
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: white;
+            padding: 0.35rem 0.6rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        body.dark .theme-toggle {
+            background: rgba(0,0,0,0.24);
+            border-color: rgba(255,255,255,0.06);
+            color: var(--fg);
         }
 
-        .wrap{
-            max-width:var(--max-width);
-            margin:3rem auto;
-            padding:1rem;
-            box-sizing:border-box;
+        main {
+            max-width: 1000px;
+            margin: 1.5rem auto;
+            padding: 0 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
         }
-
-        header{
-            display:block;
-            margin-bottom:2.25rem;
-            text-align:left;
-            position:relative; /* erlaubt Positionierung des Toggle-Buttons */
-        }
-
-        h1{
-            margin:0 0 .6rem 0;
-            font-size:clamp(1.4rem, 2.6vw, 2rem);
-            line-height:1.05;
-        }
-
-        .lead{
-            margin:0 0 .75rem 0;
-            color:var(--muted);
-            font-size:1rem;
-        }
-
-        main{
-            display:grid;
-            gap:var(--gap);
-        }
-
-        section.timeline{
-            background:linear-gradient(180deg, rgba(32,181,129,0.03), transparent);
-            padding:1rem;
-            border-radius:var(--radius);
-        }
-
-        .table-wrap{
-            overflow:auto;
-            border-radius:8px;
-            box-shadow:0 1px 0 rgba(0,0,0,0.04) inset;
-            margin-top:.9rem;
-        }
-
-        table{ width:100%; border-collapse:collapse; min-width:640px; }
-        caption{ text-align:left; font-size:.95rem; font-weight:600; margin-bottom:.45rem; color:var(--text); }
-        thead th{ text-align:left; font-size:.9rem; padding:.75rem; background:transparent; color:var(--muted); border-bottom:2px solid rgba(32,181,129,0.08); }
-        tbody td{ padding:.85rem; border-bottom:1px solid rgba(15,20,25,0.04); font-size:.97rem; line-height:1.5; }
-
-        section.gallery{ padding:0; }
-
-        .cards{ display:grid; gap:var(--gap); grid-template-columns:repeat(1,1fr); margin-top:.9rem; }
-
-        .card{ display:flex; flex-direction:column; background:var(--card); border-radius:var(--radius); overflow:hidden; text-decoration:none; color:inherit; transition:transform .18s ease, box-shadow .18s ease; min-height:180px; box-shadow:var(--card-shadow); border:1px solid rgba(10,20,30,0.03); }
-        .card:focus, .card:hover{ transform:translateY(-8px); box-shadow:0 28px 56px rgba(32,181,129,0.12); outline:3px solid rgba(32,181,129,0.12); }
-        .card-content{ padding: 1rem; }
-        .card h3{ margin:0 0 .45rem 0; font-size:1rem; }
-        .card p{ margin:0; color:var(--muted); font-size:.95rem; line-height:1.45; }
-
-        footer{ margin-top:1.5rem; font-size:.9rem; color:var(--muted); }
-
-        /* Karte-spezifisch */
-        .map-card .map { width:100%; height:200px; }
-        /* Eingebettete Reise-Karten (iframes) */
-        .map-frame { width:100%; height:260px; border:0; border-radius:8px; }
-        @media (min-width:920px){ .map-frame { height:200px; } }
 
         /* Tabs */
-        .tabs { margin: 1rem 0 0 0; position:relative; z-index:99999; pointer-events:auto; /* Ensure tabs are above any WebGL overlay (Cesium) */ }
-        .tablist { display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; }
-        .tab { background:var(--card); color:var(--text); border:1px solid rgba(10,20,30,0.06); padding:.45rem .75rem; border-radius:10px; cursor:pointer; font-size:.95rem; pointer-events:auto; position:relative; z-index:100000; }
-        .tab[aria-selected="true"] { box-shadow: 0 8px 20px rgba(32,181,129,0.08); outline:3px solid rgba(32,181,129,0.08); }
-        .tabpanel { margin-top:.75rem; padding:1rem; background:var(--card); border-radius:12px; box-shadow:var(--card-shadow); }
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .tabs button {
+            background: var(--card-bg);
+            color: var(--fg);
+            border: 1px solid var(--border);
+            padding: 0.5rem 0.9rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .tabs button[aria-pressed="true"], .tabs button:focus {
+            background: linear-gradient(180deg, rgba(0,0,0,0.04), transparent);
+            border-color: var(--accent);
+            color: var(--accent);
+            outline: none;
+            box-shadow: 0 4px 12px rgba(0,87,184,0.06);
+        }
+        body.dark .tabs button {
+            background: transparent;
+            border-color: var(--border);
+            color: var(--muted);
+        }
+        body.dark .tabs button[aria-pressed="true"] {
+            color: var(--accent);
+            background: rgba(58,160,255,0.06);
+        }
 
-        a:focus{ outline:3px dashed rgba(32,181,129,0.18); outline-offset:3px; }
+        section { width: 100%; }
 
-        /* Theme-Toggle Button */
-        .theme-toggle{ position:absolute; top:0.15rem; right:0; background:transparent; border:1px solid rgba(10,20,30,0.06); background-color:var(--card); color:var(--text); padding:.35rem .6rem; border-radius:10px; cursor:pointer; font-size:.9rem; display:inline-flex; gap:.5rem; align-items:center; }
-        .theme-toggle:focus{ outline:3px solid rgba(32,181,129,0.12); outline-offset:3px; }
-        .theme-toggle[data-mode="dark"]{ box-shadow:0 6px 18px rgba(0,0,0,0.35); border-color:rgba(255,255,255,0.06); }
+        .intro {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.25rem;
+            align-items: center;
+        }
+        .intro figure { margin: 0; flex: 0 0 140px; }
+        .intro img {
+            width: 140px; height: 140px; object-fit: cover;
+            border-radius: 50%; border: 3px solid var(--accent);
+            background: #eee; display: block;
+        }
+        .intro-text { flex: 1 1 200px; min-width: 200px; }
 
-        /* Cesium Container (innerhalb einer Karte) */
-        .cesium-container { width:100%; height:400px; border-radius:8px; overflow:hidden; position:relative; z-index:1; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+        th, td {
+            padding: 0.7em 1em;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            color: var(--fg);
+        }
+        th {
+            background: var(--accent);
+            color: #fff;
+            font-weight: 600;
+        }
+        tr:last-child td { border-bottom: none; }
 
-        @media (min-width:721px){ .cards{ grid-template-columns:repeat(2,1fr); } }
-        @media (min-width:920px){ .cards{ grid-template-columns:repeat(3,1fr); } main{ gap:1.75rem; } }
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
 
-        /* Kontakt-Ecke (rechts unten) */
-        .contact-cta {
+        .card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: box-shadow 0.2s;
+            border: 1px solid var(--border);
+            text-decoration: none;
+            color: inherit;
+        }
+        .card:hover, .card:focus {
+            box-shadow: 0 4px 16px rgba(0,87,184,0.10);
+            border-color: var(--accent);
+            outline: none;
+        }
+
+        .card img { width: 100%; height: 120px; object-fit: cover; background: #ddd; display: block; }
+        .card-content { padding: 1em; flex: 1; display: flex; flex-direction: column; gap: 0.5em; }
+        .card-title { font-size: 1.1em; font-weight: 600; color: var(--accent); margin: 0; }
+
+        /* Tab panels */
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        @media (max-width: 900px) {
+            .osm-map { height: 220px; }
+        }
+        @media (max-width: 600px) {
+            .intro { flex-direction: column; align-items: flex-start; }
+            .intro figure { margin-bottom: 1rem; }
+            main { margin: 1rem 0; }
+            .tabs { justify-content: space-between; }
+        }
+
+        /* Floating contact icons (bottom-right) */
+        .contact-fab {
             position: fixed;
             right: 1rem;
             bottom: 1rem;
             display: flex;
-            gap: .5rem;
-            z-index: 1200;
-            /* Container soll keine Pointer-Events abfangen, nur die Buttons selbst */
-            pointer-events: none;
+            gap: 0.5rem;
+            z-index: 9999;
+            align-items: center;
         }
-        .contact-btn {
-            display:inline-flex;
-            align-items:center;
-            justify-content:center;
-            width:44px;
-            height:44px;
-            border-radius:10px;
-            background:var(--card);
-            color:var(--text);
-            border:1px solid rgba(10,20,30,0.06);
-            box-shadow:var(--card-shadow);
-            text-decoration:none;
-            /* Buttons müssen Pointer-Events haben, damit sie klickbar bleiben */
-            pointer-events: auto;
+        .contact-fab a {
+            width: 46px;
+            height: 46px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            text-decoration: none;
+            color: inherit;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+            transition: transform 120ms ease, box-shadow 120ms ease;
         }
-        /* Optionale Stilklasse für klickbare Karten */
-        .card.clickable { cursor: pointer; }
-        .contact-btn svg { width:20px; height:20px; display:block; fill:currentColor; }
-        .contact-btn:focus, .contact-btn:hover { transform:translateY(-4px); box-shadow:0 18px 36px rgba(32,181,129,0.12); outline:3px solid rgba(32,181,129,0.08); }
+        .contact-fab a:hover, .contact-fab a:focus {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+            outline: none;
+        }
+        .contact-fab svg { width: 20px; height: 20px; display: block; fill: var(--accent); }
     </style>
 </head>
 <body>
-    <div class="wrap">
-        <header>
-            <h1>Lars Grasmück — Geoinformatik &amp; Vermessung</h1>
-            <p class="lead">Kurzprofil: Ich absolviere ein Duales Studium der Geoinformatik und Vermessung in Frankfurt und Mainz.</p>
+    <header>
+        <h1>Lars Grasmück</h1>
+        <p>Willkommen auf meiner persönlichen Startseite.</p>
+        <button id="theme-toggle" class="theme-toggle" aria-pressed="false" title="Toggle Dark Mode">Dark</button>
+    </header>
 
-            <!-- Theme Toggle Button -->
-            <button class="theme-toggle" id="theme-toggle" aria-label="Design umschalten" data-mode="light" title="Design umschalten" aria-pressed="false">🌙 Dunkel</button>
-        </header>
+    <main>
+        <nav class="tabs" role="tablist" aria-label="Hauptnavigation">
+            <button role="tab" aria-selected="true" aria-pressed="true" data-target="about">About me</button>
+            <button role="tab" aria-selected="false" aria-pressed="false" data-target="stationen">Stationen</button>
+            <button role="tab" aria-selected="false" aria-pressed="false" data-target="karten">Karten</button>
+            <button role="tab" aria-selected="false" aria-pressed="false" data-target="3d-modell">3D-Modell</button>
+            <button role="tab" aria-selected="false" aria-pressed="false" data-target="news">News</button>
+        </nav>
 
-        <!-- Statisches, zugängliches Tab-Interface -->
-        <div class="tabs" aria-hidden="false">
-            <div role="tablist" aria-label="Hauptbereiche" class="tablist">
-                <button class="tab" role="tab" id="tab-about-btn" aria-controls="tab-about" aria-selected="true" data-index="0">About</button>
-                <button class="tab" role="tab" id="tab-maps-btn" aria-controls="tab-maps" aria-selected="false" data-index="1">Maps</button>
-                <button class="tab" role="tab" id="tab-travel-btn" aria-controls="tab-travel" aria-selected="false" data-index="2">Reisen</button>
-                <button class="tab" role="tab" id="tab-news-btn" aria-controls="tab-news" aria-selected="false" data-index="3">News</button>
-                <button class="tab" role="tab" id="tab-projects-btn" aria-controls="tab-projects" aria-selected="false" data-index="4">Projects</button>
+        <section id="about" class="tab-panel active" role="tabpanel" aria-hidden="false">
+            <h2>About me</h2>
+            <div class="intro">
+                <div class="intro-text">
+                    <p>Herzlich Willkommen auf meiner Website!</p>
+                    <p>Mein Name ist Lars Grasmück, ich absolviere ein duales Studium Geoinformatik und Vermessung in Frankfurt und Mainz.</p>
+                </div>
+                <figure>
+                    <img src="assets/matterhorn.jpg" alt="Matterhorn" style="width: 100%; height: auto; border-radius: 8px; border: 3px solid var(--accent);">
+                </figure>
             </div>
-        </div>
+        </section>
 
-        <main>
-            <section id="tab-about" class="tabpanel" role="tabpanel" aria-labelledby="tab-about-btn">
-                <section class="timeline" aria-labelledby="timeline-title">
-                    <h2 id="timeline-title" style="margin:0;font-size:1rem;">Stationen</h2>
-                    <div class="table-wrap" role="region" aria-label="Berufliche Stationen" style="margin-top:.6rem;">
-                        <table>
-                            <caption>Meine Stationen</caption>
-                            <thead>
-                                <tr>
-                                    <th scope="col">Jahr</th>
-                                    <th scope="col">Station</th>
-                                    <th scope="col">Ort</th>
-                                    <th scope="col">Stichwort</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>2023–heute</td>
-                                    <td>Studium</td>
-                                    <td>Mainz</td>
-                                    <td>Geoinformatik und Vermessung</td>
-                                </tr>
-                                <tr>
-                                    <td>2023–heute</td>
-                                    <td>Duales Studium</td>
-                                    <td>Frankfurt</td>
-                                    <td>Datenmanagement</td>
-                                </tr>
-                                <tr>
-                                    <td>2014–2023</td>
-                                    <td>Schule</td>
-                                    <td>Hanau</td>
-                                    <td></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+        <section id="stationen" class="tab-panel" role="tabpanel" aria-hidden="true">
+            <h2>Stationen</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Jahr</th>
+                        <th>Station</th>
+                        <th>Ort</th>
+                        <th>Stichwort</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>2014–2023</td><td>Schule</td><td>Hanau</td><td>Abschluss</td></tr>
+                    <tr><td>2023–heute</td><td>Studium Geoinformatik und Vermessung</td><td>Mainz</td><td>Studium</td></tr>
+                    <tr><td>2023–heute</td><td>Duales Studium</td><td>Frankfurt</td><td>DB</td></tr>
+                </tbody>
+            </table>
+        </section>
 
-                    <!-- Karten wurden in das separate 'Maps'-Tab verschoben -->
-                 </section>
-             </section>
+        <section id="karten" class="tab-panel" role="tabpanel" aria-hidden="true">
+            <h2>Meine Karten</h2>
+            <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
+                <div id="map1" class="osm-map" style="flex: 1 1 calc(50% - 0.5rem); min-width: 220px; max-width: 100%;"></div>
+                <div id="map2" class="osm-map" style="flex: 1 1 calc(50% - 0.5rem); min-width: 220px; max-width: 100%;"></div>
+                <div id="map3" class="osm-map" style="flex: 1 1 calc(50% - 0.5rem); min-width: 220px; max-width: 100%;"></div>
+                <div id="map4" class="osm-map" style="flex: 1 1 calc(50% - 0.5rem); min-width: 220px; max-width: 100%;"></div>
+            </div>
+        </section>
 
-            <!-- Neues Maps-Tab mit vorhandenen Karten -->
-            <section id="tab-maps" class="tabpanel" role="tabpanel" aria-labelledby="tab-maps-btn" hidden>
-                <div class="timeline" style="padding:1rem;">
-                    <h2 style="margin:0;font-size:1rem;">Maps</h2>
-                    <div class="cards" style="margin-top:1rem;">
-                        <article class="card map-card" role="group" aria-labelledby="map-mainz-title">
-                            <div id="map-mainz" class="map" aria-label="Karte Mainz"></div>
-                            <div class="card-content">
-                                <h3 id="map-mainz-title">Mainz</h3>
-                                <p>Standort: Mainz — Studium (Geoinformatik &amp; Vermessung)</p>
-                            </div>
-                        </article>
+        <section id="3d-modell" class="tab-panel" role="tabpanel" aria-hidden="true">
+            <h2>3D-Modell (LoD2 Gebäude)</h2>
+            <!-- Embed the Cesium page in an iframe so it runs isolated from the main page's Leaflet logic -->
+            <iframe src="map_5_cesium.html" title="3D-Modell Viewer" style="width:100%; min-height:560px; height:70vh; border:0; border-radius:8px;" loading="lazy"></iframe>
+        </section>
 
-                        <article class="card map-card" role="group" aria-labelledby="map-frankfurt-title">
-                            <div id="map-frankfurt" class="map" aria-label="Karte Frankfurt"></div>
-                            <div class="card-content">
-                                <h3 id="map-frankfurt-title">Frankfurt</h3>
-                                <p>Standort: Frankfurt — Duales Studium / Datenmanagement</p>
-                            </div>
-                        </article>
+        <section id="news" class="tab-panel" role="tabpanel" aria-hidden="true">
+            <h2>News</h2>
+            <div id="news-gallery" class="gallery" aria-live="polite">
+                <!-- News items will be loaded here from assets/news.json -->
+            </div>
+        </section>
+    </main>
 
-                        <article class="card map-card" role="group" aria-labelledby="map-hanau-title">
-                            <div id="map-hanau" class="map" aria-label="Karte Hanau"></div>
-                            <div class="card-content">
-                                <h3 id="map-hanau-title">Hanau</h3>
-                                <p>Standort: Hanau — Schule</p>
-                            </div>
-                        </article>
-
-                        <!-- Cesium 3D-Viewer Card -->
-                        <article class="card" role="group" aria-labelledby="cesium-title">
-                            <div style="padding:0;">
-                                <div id="cesiumContainer" class="cesium-container" aria-label="3D Karte"></div>
-                            </div>
-                            <div class="card-content">
-                                <h3 id="cesium-title">3D-Gebäude (LoD2)</h3>
-                                <p style="margin:0;color:var(--muted);">3D-Visualisierung mit Cesium — LoD2 Gebäudedaten.</p>
-                            </div>
-                        </article>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Neues Reisen-Tab mit eingebetteten Map-Dateien (map_1.html ... map_4.html) -->
-            <section id="tab-travel" class="tabpanel" role="tabpanel" aria-labelledby="tab-travel-btn" hidden>
-                <div class="timeline" style="padding:1rem;">
-                    <h2 style="margin:0;font-size:1rem;">Reisen</h2>
-                    <div class="cards" style="margin-top:1rem;">
-                        <article class="card" role="group" aria-labelledby="map1-title">
-                            <div style="padding:0;">
-                                <iframe class="map-frame" src="map_1.html" title="Reise-Karte 1" aria-label="Reise-Karte 1"></iframe>
-                            </div>
-                            <div class="card-content">
-                                <h3 id="map1-title">Basiskarte</h3>
-                                <p style="margin:0;color:var(--muted);">Beschreibung zur Basiskarte.</p>
-                            </div>
-                        </article>
-
-                        <article class="card" role="group" aria-labelledby="map2-title">
-                            <div style="padding:0;">
-                                <iframe class="map-frame" src="map_2.html" title="Reise-Karte 2" aria-label="Reise-Karte 2"></iframe>
-                            </div>
-                            <div class="card-content">
-                                <h3 id="map2-title">letzte besuchte Orte</h3>
-                                <p style="margin:0;color:var(--muted);">Letzte besuchte Orte (verlauf).</p>
-                            </div>
-                        </article>
-
-                        <article class="card" role="group" aria-labelledby="map3-title">
-                            <div style="padding:0;">
-                                <!-- Standard-Zentrum: Norditalien (Lat ~45.5, Lng ~10.5), Zoom ~8 -->
-                                <iframe class="map-frame" src="map_3.html#lat=45.5&lng=10.5&zoom=8" title="Reise-Karte 3 — Norditalien" aria-label="Reise-Karte 3"></iframe>
-                            </div>
-                            <div class="card-content">
-                                <h3 id="map3-title">September 2025</h3>
-                                <p style="margin:0;color:var(--muted);">Routen und Orte im September 2025.</p>
-                            </div>
-                        </article>
-
-                        <article class="card" role="group" aria-labelledby="map4-title">
-                            <div style="padding:0;">
-                                <iframe class="map-frame" src="map_4.html" title="Reise-Karte 4" aria-label="Reise-Karte 4"></iframe>
-                            </div>
-                            <div class="card-content">
-                                <h3 id="map4-title">besuchte Länder</h3>
-                                <p style="margin:0;color:var(--muted);">Übersicht der besuchten Länder.</p>
-                            </div>
-                        </article>
-                    </div>
-                </div>
-            </section>
-
-            <section id="tab-news" class="tabpanel" role="tabpanel" aria-labelledby="tab-news-btn" hidden>
-                <div class="tabpanel">
-                    <h2 style="margin-top:0;margin-bottom:.5rem;font-size:1.05rem;">News</h2>
-                    <div id="news-list" class="cards" aria-live="polite" style="margin-top:.6rem;">
-                        <article class="card">
-                            <div class="card-content">
-                                <h3>GIS in der Stadtplanung</h3>
-                                <p>Wie GIS-Technologien die urbane Entwicklung revolutionieren.</p>
-                                <p style="color:var(--muted);font-size:0.85rem;">2023-11-01</p>
-                            </div>
-                        </article>
-                        <article class="card">
-                            <div class="card-content">
-                                <h3>Satellitendaten für den Umweltschutz</h3>
-                                <p>Neue Ansätze zur Überwachung von Ökosystemen mit Geodaten.</p>
-                                <p style="color:var(--muted);font-size:0.85rem;">2023-10-15</p>
-                            </div>
-                        </article>
-                        <article class="card">
-                            <div class="card-content">
-                                <h3>Open Data und Geoinformatik</h3>
-                                <p>Die Rolle offener Daten in der modernen Geoinformatik.</p>
-                                <p style="color:var(--muted);font-size:0.85rem;">2023-09-30</p>
-                            </div>
-                        </article>
-                    </div>
-                </div>
-            </section>
-
-            <section id="tab-projects" class="tabpanel" role="tabpanel" aria-labelledby="tab-projects-btn" hidden>
-                <div class="tabpanel">
-                    <h2 style="margin-top:0;margin-bottom:.5rem;font-size:1.05rem;">Projects</h2>
-                    <div class="cards" style="margin-top:1rem;">
-                        <article class="card">
-                            <div class="card-content">
-                                <h3>Smart City Mapping</h3>
-                                <p>Entwicklung interaktiver Karten für smarte Städte.</p>
-                            </div>
-                        </article>
-                        <article class="card">
-                            <div class="card-content">
-                                <h3>3D-Geländemodelle</h3>
-                                <p>Erstellung hochauflösender 3D-Modelle für Umweltanalysen.</p>
-                            </div>
-                        </article>
-                        <article class="card">
-                            <div class="card-content">
-                                <h3>Geodatenanalyse</h3>
-                                <p>Analyse großer Geodatenmengen zur Entscheidungsunterstützung.</p>
-                            </div>
-                        </article>
-                    </div>
-                </div>
-            </section>
-
-        </main>
-
-        <footer>
-            <p>&copy; Lars Grasmück</p>
-        </footer>
-    </div>
-
-    <!-- Kontakt-Ecke (rechts unten) -->
-    <div class="contact-cta" aria-hidden="false">
-        <a class="contact-btn" href="https://www.linkedin.com/in/YOUR_PROFILE" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" title="LinkedIn">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4.98 3.5C4.98 4.88 3.86 6 2.48 6S0 4.88 0 3.5 1.12 1 2.5 1 4.98 2.12 4.98 3.5zM.22 8.98h4.52V24H.22V8.98zM9.94 8.98h4.34v2.04h.06c.6-1.14 2.06-2.34 4.24-2.34C23.22 8.68 24 11.02 24 14.9V24h-4.52v-8.6c0-2.05-.04-4.7-2.86-4.7-2.86 0-3.29 2.22-3.29 4.53V24H9.94V8.98z"/></svg>
+    <!-- floating contact links -->
+    <div class="contact-fab" aria-hidden="false">
+        <a href="https://en.wikipedia.org/wiki/Ada_Lovelace" target="_blank" rel="noopener noreferrer" aria-label="Wikipedia — Ada Lovelace">
+            <!-- simple LinkedIn-like icon -->
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="2" y="2" width="20" height="20" rx="3" ry="3" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M6.5 9.5h2.5v8H6.5zM8.75 6.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5zM12 9.5h2.2v1.05h.03c.31-.58 1.07-1.2 2.2-1.2 2.35 0 2.78 1.55 2.78 3.57V17.5h-2.5v-3.1c0-.74-.01-1.7-1.04-1.7-1.04 0-1.2.81-1.2 1.64V17.5H12z"/></svg>
         </a>
 
-        <a class="contact-btn" href="https://github.com/YOUR_USERNAME" target="_blank" rel="noopener noreferrer" aria-label="GitHub" title="GitHub">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 .5C5.73.5.98 5.26.98 11.53c0 4.67 3.03 8.63 7.23 10.03.53.1.72-.23.72-.5 0-.25-.01-.92-.01-1.8-2.94.64-3.56-1.42-3.56-1.42-.48-1.22-1.17-1.55-1.17-1.55-.96-.66.07-.65.07-.65 1.06.08 1.62 1.09 1.62 1.09.94 1.62 2.47 1.15 3.07.88.09-.69.37-1.15.67-1.41-2.35-.27-4.82-1.18-4.82-5.24 0-1.16.41-2.11 1.09-2.85-.11-.27-.48-1.36.1-2.83 0 0 .88-.28 2.88 1.08.84-.23 1.74-.35 2.64-.35.9 0 1.8.12 2.64.35 2 1.36 2.88 1.08 2.88 1.08.58 1.47.21 2.56.1 2.83.68.74 1.09 1.69 1.09 2.85 0 4.06-2.47 4.97-4.82 5.24.38.32.72.95.72 1.91 0 1.38-.01 2.5-.01 2.83 0 .27.19.61.73.5 4.2-1.4 7.23-5.36 7.23-10.03C23.02 5.26 18.27.5 12 .5z"/></svg>
+        <a href="https://commons.wikimedia.org/wiki/Category:Ada_Lovelace" target="_blank" rel="noopener noreferrer" aria-label="Wikimedia Commons — Ada Lovelace">
+            <!-- simple GitHub-like icon -->
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-2.02c-3.2.7-3.87-1.37-3.87-1.37-.53-1.35-1.3-1.71-1.3-1.71-1.06-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.73 1.27 3.4.97.11-.76.41-1.27.74-1.56-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.3 1.2-3.11-.12-.29-.52-1.46.11-3.05 0 0 .98-.31 3.2 1.19.93-.26 1.92-.39 2.9-.39.98 0 1.97.13 2.9.39 2.22-1.5 3.2-1.19 3.2-1.19.63 1.59.23 2.76.11 3.05.75.81 1.2 1.85 1.2 3.11 0 4.43-2.7 5.4-5.27 5.68.42.36.8 1.07.8 2.16v3.2c0 .31.21.68.8.56C20.71 21.39 24 17.08 24 12 24 5.73 18.27.5 12 .5z"/></svg>
+        </a>
+
+        <a href="https://www.britannica.com/biography/Ada-Lovelace" target="_blank" rel="noopener noreferrer" aria-label="Britannica — Ada Lovelace">
+            <!-- simple mail icon -->
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M2 6.5C2 5.12 3.12 4 4.5 4h15c1.38 0 2.5 1.12 2.5 2.5v11c0 1.38-1.12 2.5-2.5 2.5h-15C3.12 20 2 18.88 2 17.5v-11zM4.5 6l7.5 5 7.5-5v-.5L12 11 4.5 5.5V6z"/></svg>
         </a>
     </div>
 
-    <!-- Cesium JS (einmalig) -->
-    <script src="https://cesium.com/downloads/cesiumjs/releases/1.125/Build/Cesium/Cesium.js"></script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
     <script>
-    // Cesium initialisieren und 3D-Tiles laden (sicher, keine HTML-Kommentare)
-    (function () {
-        function initCesium() {
-            if (typeof Cesium === 'undefined') { console.warn('Cesium not available'); return; }
-            var el = document.getElementById('cesiumContainer');
-            if (!el) return;
+        // Theme toggle with persistence and theme change event
+        (function() {
+            var btn = document.getElementById('theme-toggle');
+            var stored = localStorage.getItem('theme'); // 'dark' or 'light'
 
-            try {
-                window.cesiumViewer = new Cesium.Viewer('cesiumContainer', {
-                    shadows: false,
-                    geocoder: false,
-                    baseLayerPicker: false,
-                    infoBox: false,
-                    selectionIndicator: false
-                });
-
-                // OSM als Basiskarte
-                var osm = new Cesium.OpenStreetMapImageryProvider({ url: 'https://a.tile.openstreetmap.org/' });
-                window.cesiumViewer.imageryLayers.addImageryProvider(osm);
-
-                // zusätzlicher WMS-Layer (de_basemapde_web_raster_farbe)
-                var provider = new Cesium.WebMapServiceImageryProvider({
-                    url: 'https://sgx.geodatenzentrum.de/wms_basemapde?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities',
-                    layers: 'de_basemapde_web_raster_farbe',
-                    parameters: { transparent: true, format: 'image/png' }
-                });
-                window.cesiumViewer.imageryLayers.addImageryProvider(provider);
-
-                // Kamera auf einen sinnvollen Ort fliegen
-                window.cesiumViewer.camera.flyTo({
-                    destination: Cesium.Cartesian3.fromDegrees(6.958215, 50.932767, 1500.0),
-                    orientation: {
-                        heading: Cesium.Math.toRadians(0.0),
-                        pitch: Cesium.Math.toRadians(-50.0),
-                        roll: 0.0
-                    }
-                });
-
-                // 3D-Tileset laden (LoD2)
-                (async function () {
-                    try {
-                        var tileset = await Cesium.Cesium3DTileset.fromUrl('https://sg.geodatenzentrum.de/gdz_basemapde_3d_gebaeude/lod2_4978_null.json');
-                        window.cesiumViewer.scene.primitives.add(tileset);
-
-                        var cityStyle = new Cesium.Cesium3DTileStyle({
-                            color: {
-                                conditions: [
-                                    ["${surface} === 'wall'", "color('#f2f2f2')"],
-                                    ["${surface} === 'roof'", "color('#ff5c4d')"],
-                                    ["${surface} === 'bridge'", "color('#999999')"]
-                                ]
-                            }
-                        });
-                        tileset.style = cityStyle;
-                    } catch (e) { console.error('3D tileset load failed', e); }
-                })();
-
-            } catch (e) {
-                console.error('Cesium init failed', e);
-            }
-        }
-
-        // Wenn die Maps-Tab sichtbar wird, evtl. Cesium initialisieren oder neu rendern
-        document.addEventListener('DOMContentLoaded', function () {
-            // Initiale Init (falls Maps sichtbar)
-            initCesium();
-
-            var mapsBtn = document.getElementById('tab-maps-btn');
-            if (mapsBtn) {
-                mapsBtn.addEventListener('click', function () {
-                    // kleines Delay, damit Container sichtbar ist
-                    setTimeout(function () {
-                        try { if (window.cesiumViewer && window.cesiumViewer.resize) { window.cesiumViewer.resize(); window.cesiumViewer.scene.requestRender(); } else { initCesium(); } } catch (e) {}
-                    }, 250);
-                });
-            }
-        });
-    })();
-
-    // After Cesium init: ensure Cesium canvas does not steal clicks when Maps tab is not active.
-    (function(){
-        function setCesiumCanvasPointer(enabled){
-            var c = document.querySelector('#cesiumContainer canvas');
-            if(c) c.style.pointerEvents = enabled ? 'auto' : 'none';
-        }
-
-        document.addEventListener('DOMContentLoaded', function(){
-            // Start with Cesium canvas non-interactive until Maps tab is activated
-            setTimeout(function(){ setCesiumCanvasPointer(false); }, 300);
-
-            // Toggle pointer-events based on which tab is clicked
-            document.querySelectorAll('.tab').forEach(function(btn){
-                btn.addEventListener('click', function(){
-                    var isMaps = btn.id === 'tab-maps-btn';
-                    // enable Cesium interaction only when Maps is active
-                    setTimeout(function(){ setCesiumCanvasPointer(isMaps); }, 120);
-                });
-            });
-
-            // Also when activating tabs via keyboard, listen for focus changes
-            document.addEventListener('keydown', function(e){
-                if(e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'Home' || e.key === 'End'){
-                    // small delay to allow tab selection logic to run elsewhere
-                    setTimeout(function(){
-                        var active = document.querySelector('.tab[aria-selected="true"]');
-                        var isMaps = active && active.id === 'tab-maps-btn';
-                        setCesiumCanvasPointer(isMaps);
-                    }, 60);
+            function applyTheme(theme) {
+                if (theme === 'dark') {
+                    document.body.classList.add('dark');
+                    btn.setAttribute('aria-pressed', 'true');
+                    btn.textContent = 'Light';
+                } else {
+                    document.body.classList.remove('dark');
+                    btn.setAttribute('aria-pressed', 'false');
+                    btn.textContent = 'Dark';
                 }
+                // notify other parts (maps) about theme change
+                window.dispatchEvent(new CustomEvent('themeChange', { detail: theme }));
+            }
+
+            // Initial theme: stored > prefers-color-scheme > light
+            if (stored) {
+                applyTheme(stored);
+            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                applyTheme('dark');
+            } else {
+                applyTheme('light');
+            }
+
+            btn.addEventListener('click', function () {
+                var isDark = document.body.classList.toggle('dark');
+                var theme = isDark ? 'dark' : 'light';
+                localStorage.setItem('theme', theme);
+                applyTheme(theme);
             });
-        });
-    })();
+        })();
 
-    document.addEventListener('DOMContentLoaded', function () {
-        const tabs = document.querySelectorAll('.tab');
-        const panels = document.querySelectorAll('.tabpanel');
+        // Tab behavior and map initialization with map dark/light tile switching
+        (function() {
+            var tabs = document.querySelectorAll('.tabs button');
+            var panels = document.querySelectorAll('.tab-panel');
+            var maps = null;
+            var tileLayers = [];
+            var mapsCreated = false;
 
-        tabs.forEach((tab) => {
-            tab.addEventListener('click', () => {
-                // Deselect all tabs and hide all panels
-                tabs.forEach((t) => {
-                    t.setAttribute('aria-selected', 'false');
+            var lightTiles = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+            var lightAttribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+            var darkTiles = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png';
+            var darkAttribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors & <a href="https://carto.com/attributions">CartoDB</a>';
+
+            function setActiveTab(targetId) {
+                tabs.forEach(function(t) {
+                    var is = t.dataset.target === targetId;
+                    t.setAttribute('aria-selected', is ? 'true' : 'false');
+                    t.setAttribute('aria-pressed', is ? 'true' : 'false');
                 });
-                panels.forEach((panel) => {
-                    panel.hidden = true;
+                panels.forEach(function(p) {
+                    var is = p.id === targetId;
+                    p.classList.toggle('active', is);
+                    p.setAttribute('aria-hidden', is ? 'false' : 'true');
                 });
 
-                // Select the clicked tab and show the corresponding panel
-                tab.setAttribute('aria-selected', 'true');
-                const panelId = tab.getAttribute('aria-controls');
-                document.getElementById(panelId).hidden = false;
+                if (targetId === 'karten') {
+                    showMaps();
+                }
+
+                if (targetId === 'news') {
+                    // lazy load news when the tab is first opened
+                    if (!window._newsLoaded) {
+                        loadNews();
+                        window._newsLoaded = true;
+                    }
+                }
+            }
+
+            tabs.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    setActiveTab(btn.dataset.target);
+                });
             });
-        });
-    });
 
-    document.addEventListener('DOMContentLoaded', function () {
-        // Initialize Leaflet maps
-        function initLeafletMap(mapId, lat, lng, zoom) {
-            const map = L.map(mapId).setView([lat, lng], zoom);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
-        }
+            // Map creation on demand (to avoid leaflet issues when hidden)
+            function showMaps() {
+                if (!mapsCreated) {
+                    createMaps();
+                    mapsCreated = true;
+                } else {
+                    // If already created, notify Leaflet to recalc sizes
+                    setTimeout(function() {
+                        maps.forEach(function(m) { m.invalidateSize(); });
+                    }, 50);
+                }
+            }
 
-        // Mainz map
-        initLeafletMap('map-mainz', 49.9929, 8.2473, 13);
+            function createMaps() {
+                var flexContainer = document.getElementById('map1').parentElement;
+                while (flexContainer.firstChild) flexContainer.removeChild(flexContainer.firstChild);
 
-        // Frankfurt map
-        initLeafletMap('map-frankfurt', 50.1109, 8.6821, 13);
+                ['map_1.html', 'map_2.html', 'map_3.html', 'map_4.html'].forEach(function(src, idx) {
+                    var f = document.createElement('iframe');
+                    f.src = src;
+                    f.setAttribute('aria-label', 'Karte ' + (idx + 1));
+                    f.style.flex = '1 1 calc(50% - 0.5rem)';
+                    f.style.width = 'calc(50% - 0.5rem)';
+                    f.style.boxSizing = 'border-box';
+                    f.style.minHeight = '420px';
+                    f.style.height = '100%';
+                    f.style.border = '0';
+                    f.loading = 'lazy';
+                    flexContainer.appendChild(f);
+                });
+            }
 
-        // Hanau map
-        initLeafletMap('map-hanau', 50.1264, 8.9285, 13);
-    });
+            // Replace tile layers when theme changes
+            function updateMapTiles(theme) {
+                if (!mapsCreated || !maps) return;
+                var url = (theme === 'dark') ? darkTiles : lightTiles;
+                var attr = (theme === 'dark') ? darkAttribution : lightAttribution;
+                maps.forEach(function(map, idx) {
+                    // remove previous tile layer if present
+                    if (tileLayers[idx]) {
+                        try { map.removeLayer(tileLayers[idx]); } catch (e) { /* ignore */ }
+                    }
+                    var newLayer = L.tileLayer(url, { attribution: attr });
+                    newLayer.addTo(map);
+                    tileLayers[idx] = newLayer;
+                });
+                // give Leaflet a moment to re-render
+                setTimeout(function() {
+                    maps.forEach(function(m) { m.invalidateSize(); });
+                }, 80);
+            }
 
-    document.addEventListener('DOMContentLoaded', function () {
-        // Ensure the iframe for "letzten besuchten Orte" loads correctly
-        const map2Frame = document.querySelector('iframe[src="map_2.html"]');
-        if (map2Frame) {
-            map2Frame.addEventListener('load', function () {
-                console.log('Map 2 (letzten besuchten Orte) loaded successfully.');
+            // Listen for theme changes
+            window.addEventListener('themeChange', function(e) {
+                updateMapTiles(e.detail);
             });
-            map2Frame.addEventListener('error', function () {
-                console.error('Failed to load Map 2 (letzten besuchten Orte).');
-            });
-        }
-    });
 
-    document.addEventListener('DOMContentLoaded', function () {
-        // Add dynamic entries for News
-        const newsList = document.getElementById('news-list');
-        if (newsList) {
-            const newsEntries = [
-                { title: 'Neue GIS-Technologien 2023', description: 'Ein Überblick über die neuesten Entwicklungen in der GIS-Welt.', date: '2023-10-01' },
-                { title: 'OpenStreetMap erreicht 10 Millionen Mitwirkende', description: 'Die OpenStreetMap-Community feiert einen neuen Meilenstein.', date: '2023-09-15' },
-                { title: 'Geodaten und Klimawandel', description: 'Wie Geoinformatik zur Bekämpfung des Klimawandels beiträgt.', date: '2023-08-20' }
-            ];
+            // Ensure initial state (default tab is the first)
+            var initial = document.querySelector('.tabs button[aria-selected="true"]') || tabs[0];
+            if (initial) setActiveTab(initial.dataset.target);
 
-            newsEntries.forEach(news => {
-                const article = document.createElement('article');
+            // Game tab removed — no game initialization here
+
+            // --- News loader -------------------------------------------------
+            function createNewsCard(item) {
+                var article = document.createElement('article');
                 article.className = 'card';
-                article.innerHTML = `
-                    <div class="card-content">
-                        <h3>${news.title}</h3>
-                        <p>${news.description}</p>
-                        <p style="color:var(--muted);font-size:0.85rem;">${news.date}</p>
-                    </div>
-                `;
-                newsList.appendChild(article);
-            });
-        } else {
-            console.error('News list container not found.');
-        }
 
-        // Add dynamic entries for Projects
-        const projectsPanel = document.querySelector('#tab-projects .tabpanel');
-        if (projectsPanel) {
-            const projects = [
-                { title: '3D-Stadtmodelle', description: 'Erstellung von LoD2-Stadtmodellen für urbane Analysen.' },
-                { title: 'Geodaten-Visualisierung', description: 'Entwicklung interaktiver Karten zur Darstellung von Umweltdaten.' },
-                { title: 'Open Data Integration', description: 'Integration offener Geodatenquellen in bestehende GIS-Systeme.' }
-            ];
+                var img = document.createElement('img');
+                img.src = item.image || '';
+                img.alt = item.title || 'News Bild';
+                article.appendChild(img);
 
-            const projectList = document.createElement('div');
-            projectList.className = 'cards';
-            projectList.style.marginTop = '1rem';
+                var content = document.createElement('div');
+                content.className = 'card-content';
 
-            projects.forEach(project => {
-                const projectCard = document.createElement('article');
-                projectCard.className = 'card';
-                projectCard.innerHTML = `
-                    <div class="card-content">
-                        <h3>${project.title}</h3>
-                        <p>${project.description}</p>
-                    </div>
-                `;
-                projectList.appendChild(projectCard);
-            });
+                var h3 = document.createElement('h3');
+                h3.className = 'card-title';
+                h3.textContent = item.title || '';
 
-            projectsPanel.appendChild(projectList);
-        } else {
-            console.error('Projects panel container not found.');
-        }
-    });
+                var p = document.createElement('p');
+                p.textContent = item.summary || '';
+
+                var small = document.createElement('small');
+                small.style.color = getComputedStyle(document.documentElement).getPropertyValue('--muted') || 'gray';
+                small.textContent = formatDate(item.date || '');
+
+                content.appendChild(h3);
+                content.appendChild(p);
+                content.appendChild(small);
+                article.appendChild(content);
+
+                // optional link wrapper
+                if (item.link) {
+                    var a = document.createElement('a');
+                    a.href = item.link;
+                    a.className = 'card-link';
+                    a.style.textDecoration = 'none';
+                    a.style.color = 'inherit';
+                    a.setAttribute('aria-label', item.title || 'News');
+
+                    // move article into link
+                    a.appendChild(article.cloneNode(true));
+                    return a;
+                }
+
+                return article;
+            }
+
+            function formatDate(d) {
+                if (!d) return '';
+                // try ISO YYYY-MM-DD
+                var iso = d.match(/^\d{4}-\d{2}-\d{2}$/);
+                if (iso) {
+                    var dt = new Date(d + 'T00:00:00');
+                    return dt.toLocaleDateString(undefined, { day: '2-digit', month: '2-digit', year: 'numeric' });
+                }
+                return d;
+            }
+
+            function loadNews() {
+                var container = document.getElementById('news-gallery');
+                if (!container) return;
+                // show a simple loading state
+                container.innerHTML = '<p>Lade News…</p>';
+
+                // If page is opened via file:// the browser will block fetch requests to local files.
+                if (window.location.protocol === 'file:') {
+                    container.innerHTML = '<p>Die News können lokal (file://) nicht geladen werden. Bitte starte einen lokalen Webserver oder öffne die Seite über http(s).</p>';
+                    return;
+                }
+
+                // Try a few possible relative URLs in case the page is served from a subpath.
+                var candidates = [
+                    'assets/news.json',
+                    './assets/news.json',
+                    window.location.pathname.replace(/\/[^\/]*$/, '') + '/assets/news.json',
+                    window.location.origin + '/assets/news.json'
+                ].filter(Boolean);
+
+                var tried = 0;
+                function tryFetch(urlIndex) {
+                    if (urlIndex >= candidates.length) {
+                        container.innerHTML = '<p>Fehler beim Laden der News.</p>';
+                        return;
+                    }
+                    var url = candidates[urlIndex];
+                    // attempt fetch without cache
+                    fetch(url, { cache: 'no-store' }).then(function(resp) {
+                        if (!resp.ok) throw new Error('HTTP ' + resp.status + ' for ' + url);
+                        return resp.json();
+                    }).then(function(data) {
+                        var items = data && data.news ? data.news : [];
+                        container.innerHTML = '';
+                        if (!items.length) {
+                            container.innerHTML = '<p>Keine News vorhanden.</p>';
+                            return;
+                        }
+                        items.forEach(function(it) {
+                            var node = createNewsCard(it);
+                            container.appendChild(node);
+                        });
+                    }).catch(function(err) {
+                        // try next candidate
+                        // eslint-disable-next-line no-console
+                        console.warn('news load failed for', url, err);
+                        tryFetch(urlIndex + 1);
+                    });
+                }
+
+                tryFetch(0);
+            }
+
+        })();
     </script>
 </body>
 </html>
