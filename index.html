@@ -362,6 +362,7 @@
 
     <!-- Cesium JS (einmalig) -->
     <script src="https://cesium.com/downloads/cesiumjs/releases/1.125/Build/Cesium/Cesium.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
     // Cesium initialisieren und 3D-Tiles laden (sicher, keine HTML-Kommentare)
     (function () {
@@ -496,6 +497,39 @@
                 document.getElementById(panelId).hidden = false;
             });
         });
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Initialize Leaflet maps
+        function initLeafletMap(mapId, lat, lng, zoom) {
+            const map = L.map(mapId).setView([lat, lng], zoom);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+        }
+
+        // Mainz map
+        initLeafletMap('map-mainz', 49.9929, 8.2473, 13);
+
+        // Frankfurt map
+        initLeafletMap('map-frankfurt', 50.1109, 8.6821, 13);
+
+        // Hanau map
+        initLeafletMap('map-hanau', 50.1264, 8.9285, 13);
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Ensure the iframe for "letzten besuchten Orte" loads correctly
+        const map2Frame = document.querySelector('iframe[src="map_2.html"]');
+        if (map2Frame) {
+            map2Frame.addEventListener('load', function () {
+                console.log('Map 2 (letzten besuchten Orte) loaded successfully.');
+            });
+            map2Frame.addEventListener('error', function () {
+                console.error('Failed to load Map 2 (letzten besuchten Orte).');
+            });
+        }
     });
     </script>
 </body>
